@@ -5,6 +5,8 @@ const app = express();
 app.use(express.json());
 
 const notes = [];
+let nextId = 1;
+
 //Routes
 app.get("/", function (req, res) {
   res.send("Welcome to NOTES-API");
@@ -23,14 +25,14 @@ app.post("/notes", (req, res) => {
   // Add note
 
   const newNote = {
-    id: notes.length + 1,
+    id: nextId,
     title: note.title,
     content: note.content,
   };
+
   notes.push(newNote);
-
-  console.log("New Notes", notes);
-
+  nextId++;
+  console.log("ID: ", nextId);
   res.status(201).json({
     message: "Note created successfully",
     newNote,
@@ -40,6 +42,39 @@ app.post("/notes", (req, res) => {
 
 app.get("/notes", (req, res) => {
   res.status(200).json({ notes });
+});
+
+app.get("/notes/:id", (req, res) => {
+  const id = Number(req.params.id);
+  const note = notes.find((note) => note.id === id);
+
+  if (!note) {
+    res.status(404).json({
+      message: "Note not found",
+    });
+  }
+
+  res.status(200).json(note);
+});
+
+app.delete("/notes/:id", (req, res) => {
+  const id = Number(req.params.id);
+  const index = notes.findIndex((note) => note.id === id);
+
+  if (index === -1) {
+    return res.status(404).json({
+      message: "Note not found",
+    });
+  }
+
+  notes.splice(index, 1);
+
+  //   const newNotes = notes.filter((note) => note.id !== id);
+
+  res.status(200).json({
+    message: "Note deleted successfully",
+    totalNotes: notes.length,
+  });
 });
 
 module.exports = app;
