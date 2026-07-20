@@ -70,10 +70,29 @@ app.delete("/notes/:id", (req, res) => {
   notes.splice(index, 1);
 
   //   const newNotes = notes.filter((note) => note.id !== id);
-
   res.status(200).json({
     message: "Note deleted successfully",
     totalNotes: notes.length,
+  });
+});
+
+app.put("/notes/:id", (req, res) => {
+  const id = Number(req.params.id);
+
+  const note = notes.find((note) => note.id === id);
+
+  if (!note) {
+    return res.status(404).json({
+      message: "Note not found",
+    });
+  }
+
+  note.title = req.body.title;
+  note.content = req.body.content;
+
+  res.status(200).json({
+    message: "Note updated successfully",
+    note,
   });
 });
 
