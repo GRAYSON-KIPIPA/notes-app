@@ -1,3 +1,4 @@
+const { decrypt } = require("dotenv");
 const pool = require("../db");
 const bcrypt = require("bcrypt");
 
@@ -5,7 +6,6 @@ const getAllUsers = async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM users");
 
-    console.log("USERS: ", result.rows);
     res.status(200).json({
       message: "Register user works",
       users: result.rows,
@@ -54,7 +54,6 @@ const registerUser = async (req, res) => {
       [name, email, hashedPassword]
     );
 
-    console.log("RESULTS: ", result.rows[0]);
     const user = result.rows[0];
     res.status(201).json({
       user: {
@@ -64,11 +63,57 @@ const registerUser = async (req, res) => {
       },
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(500).json({
       message: "Server error",
     });
   }
 };
 
-module.exports = { registerUser, getAllUsers };
+const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({
+        message: "Email and password are required",
+      });
+    }
+
+    const result = await pool.query("SELECT * FROM users WHERE email=$1", [
+      email,
+    ]);
+
+    const user = result.rows[0];
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    //compare for password
+    const loginTest = await bcrypt.compare(password, user.password);
+
+    if (loginTest) {
+      res.status(200).json({
+        message: "User loged in successfully",
+        user: {
+          name: user.name,
+          email: user.email,
+        },
+      });
+    } else {
+      return res.status(400).json({
+        message: "Email or password is incorect",
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Server error",
+    });
+  }
+};
+
+module.exports = { registerUser, getAllUsers, login };
