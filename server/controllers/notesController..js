@@ -1,9 +1,14 @@
 const pool = require("../db");
+// const authMiddleware = require("../middleware/authMiddleware");
 
 //GET ALL NOTES
 const getAllNotes = async (req, res) => {
+  const userId = req.user.id;
+
   try {
-    const result = await pool.query("SELECT * FROM notes");
+    const result = await pool.query("SELECT * FROM notes WHERE user_id=$1", [
+      userId,
+    ]);
     res.status(200).json(result.rows);
   } catch (err) {
     console.error(err);
@@ -16,6 +21,7 @@ const getAllNotes = async (req, res) => {
 
 //CREATING A NOTE
 const createNote = async (req, res) => {
+  const userId = req.user.id;
   try {
     const { title, content } = req.body;
 
@@ -26,8 +32,8 @@ const createNote = async (req, res) => {
     }
 
     const result = await pool.query(
-      "INSERT INTO notes(title, content) VALUES($1, $2) RETURNING *",
-      [title, content]
+      "INSERT INTO notes(title, content, user_id) VALUES($1, $2, $3) RETURNING *",
+      [title, content, userId]
     );
 
     res.status(201).json({
@@ -46,8 +52,12 @@ const createNote = async (req, res) => {
 const getNote = async (req, res) => {
   try {
     const id = Number(req.params.id);
+    const userId = req.user.id;
 
-    const result = await pool.query("SELECT * FROM notes WHERE id=$1", [id]);
+    const result = await pool.query(
+      "SELECT * FROM notes WHERE id=$1 AND user_id=$2",
+      [id, userId]
+    );
 
     if (result.rows.length === 0) {
       return res.status(404).json({
@@ -66,6 +76,7 @@ const getNote = async (req, res) => {
 
 //UPDATING A NOTE
 const updateNote = async (req, res) => {
+  const userId = req.user.id;
   try {
     const id = Number(req.params.id);
     const { title, content } = req.body;
@@ -76,8 +87,8 @@ const updateNote = async (req, res) => {
       });
     }
     const result = await pool.query(
-      "UPDATE notes SET title=$1, content=$2 WHERE id=$3 RETURNING *",
-      [title, content, id]
+      "UPDATE notes SET title=$1, content=$2 WHERE id=$3 AND user_id=$4 RETURNING *",
+      [title, content, id, userId]
     );
 
     if (result.rows.length === 0) {
@@ -99,10 +110,11 @@ const updateNote = async (req, res) => {
 const deleteNote = async (req, res) => {
   try {
     const id = Number(req.params.id);
+    const userId = req.user.id;
 
     const result = await pool.query(
-      "DELETE FROM notes WHERE id=$1 RETURNING *",
-      [id]
+      "DELETE FROM notes WHERE id=$1 AND user_id=$2 RETURNING *",
+      [id, userId]
     );
 
     if (result.rows.length === 0) {

@@ -11,9 +11,9 @@ const {
 } = require("../controllers/notesController.");
 
 router.get("/", authMiddleware, getAllNotes);
-router.post("/", createNote);
-router.get("/:id", getNote);
-router.put("/:id", updateNote);
-router.delete("/:id", deleteNote);
+router.post("/", authMiddleware, createNote);
+router.get("/:id", getNote, authMiddleware);
+router.put("/:id", updateNote, authMiddleware);
+router.delete("/:id", deleteNote, authMiddleware);
 
 module.exports = router;
