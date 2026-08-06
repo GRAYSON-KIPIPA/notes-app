@@ -10,26 +10,29 @@ const getAllNotes = async (req, res) => {
   const limit = Number(req.query.limit) || 10;
   const offset = (page - 1) * limit;
 
+  //Searching a content from notes
+  const search = req.query.search || "";
+
   try {
     const result = await pool.query(
-      "SELECT * FROM notes WHERE user_id=$1 LIMIT $2 OFFSET $3",
-      [userId, limit, offset]
+      "SELECT * FROM notes WHERE user_id=$1 AND title ILIKE $4 LIMIT $2 OFFSET $3",
+      [userId, limit, offset, `%${search}%`]
     );
 
     const totalNotesResult = await pool.query(
-      "SELECT COUNT(*) AS total FROM notes WHERE user_id=$1",
-      [userId]
+      "SELECT COUNT(*) AS total FROM notes WHERE user_id=$1 AND title ILIKE $4 ",
+      [userId, `%${search}%`]
     );
 
     const totalNotes = Number(totalNotesResult.rows[0].total);
     const totalPages = Math.ceil(totalNotes / limit);
 
     res.status(200).json({
-      page: page,
-      limit: limit,
-      totalNotes: Notes,
-      totalPages: totalPages,
-      note: result.rows,
+      page,
+      limit,
+      totalNotes,
+      totalPages,
+      notes: result.rows,
     });
   } catch (err) {
     console.error(err);
