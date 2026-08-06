@@ -10,11 +10,3 @@ const pool = new Pool({
 });
 
 module.exports = pool;
-
-// const pool = new Pool({
-//   user: "postgres",
-//   host: "localhost",
-//   database: "notes_db",
-//   password: "***",
-//   port: 5432,
-// });

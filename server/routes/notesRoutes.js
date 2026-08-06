@@ -1,4 +1,8 @@
 const express = require("express");
+
+const { noteValidation } = require("../validators/noteValidator");
+const validate = require("../middleware/validationResult");
+
 const authMiddleware = require("../middleware/authMiddleware");
 const router = express.Router();
 
@@ -11,7 +15,7 @@ const {
 } = require("../controllers/notesController.");
 
 router.get("/", authMiddleware, getAllNotes);
-router.post("/", authMiddleware, createNote);
+router.post("/", noteValidation, validate, authMiddleware, createNote);
 router.get("/:id", getNote, authMiddleware);
 router.put("/:id", updateNote, authMiddleware);
 router.delete("/:id", deleteNote, authMiddleware);

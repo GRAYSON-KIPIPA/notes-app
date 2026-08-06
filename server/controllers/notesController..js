@@ -5,11 +5,32 @@ const pool = require("../db");
 const getAllNotes = async (req, res) => {
   const userId = req.user.id;
 
+  //Get page and limit from query params for Pagination
+  const page = Number(req.query.page) || 1;
+  const limit = Number(req.query.limit) || 10;
+  const offset = (page - 1) * limit;
+
   try {
-    const result = await pool.query("SELECT * FROM notes WHERE user_id=$1", [
-      userId,
-    ]);
-    res.status(200).json(result.rows);
+    const result = await pool.query(
+      "SELECT * FROM notes WHERE user_id=$1 LIMIT $2 OFFSET $3",
+      [userId, limit, offset]
+    );
+
+    const totalNotesResult = await pool.query(
+      "SELECT COUNT(*) AS total FROM notes WHERE user_id=$1",
+      [userId]
+    );
+
+    const totalNotes = Number(totalNotesResult.rows[0].total);
+    const totalPages = Math.ceil(totalNotes / limit);
+
+    res.status(200).json({
+      page: page,
+      limit: limit,
+      totalNotes: Notes,
+      totalPages: totalPages,
+      note: result.rows,
+    });
   } catch (err) {
     console.error(err);
 
