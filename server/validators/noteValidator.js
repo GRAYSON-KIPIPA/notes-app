@@ -14,6 +14,13 @@ const noteValidation = [
     .withMessage("Content is required")
     .isLength({ min: 2 })
     .withMessage("A note at least have two characters"),
+
+  body("category_id")
+    .trim()
+    .notEmpty()
+    .withMessage("category_id is required")
+    .isInt()
+    .withMessage("Category ID must be an integer"),
 ];
 
 module.exports = {

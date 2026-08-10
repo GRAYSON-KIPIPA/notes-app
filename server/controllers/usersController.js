@@ -22,23 +22,6 @@ const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    //REPLACED BY EXPRESS-VALIDATOR
-    // if (!name || !email || !password) {
-    //   return res.status(400).json({
-    //     message: "Username, email, password are required",
-    //   });
-    // }
-
-    // if (
-    //   typeof name !== "string" ||
-    //   typeof email !== "string" ||
-    //   typeof password !== "string"
-    // ) {
-    //   return res.status(400).json({
-    //     message: "Invalid input types",
-    //   });
-    // }
-
     const existEmail = await pool.query("SELECT * FROM users WHERE email=$1", [
       email,
     ]);

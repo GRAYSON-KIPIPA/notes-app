@@ -13,14 +13,21 @@ const getAllNotes = async (req, res) => {
   //Searching a content from notes
   const search = req.query.search || "";
 
+  //Sorting the notes   Minimize trusting any query from the client
+  const allowedSortField = ["title", "id"];
+  //THEN
+  const sort = allowedSortField.includes(req.query.sort)
+    ? req.query.sort
+    : "id";
+  const order = req.query.order === "desc" ? "DESC" : "ASC";
   try {
     const result = await pool.query(
-      "SELECT * FROM notes WHERE user_id=$1 AND title ILIKE $4 LIMIT $2 OFFSET $3",
+      `SELECT * FROM notes WHERE user_id=$1 AND title ILIKE $4 ORDER BY ${sort} ${order} LIMIT $2 OFFSET $3`,
       [userId, limit, offset, `%${search}%`]
     );
 
     const totalNotesResult = await pool.query(
-      "SELECT COUNT(*) AS total FROM notes WHERE user_id=$1 AND title ILIKE $4 ",
+      `SELECT COUNT(*) AS total FROM notes WHERE user_id=$1 AND title ILIKE $2 `,
       [userId, `%${search}%`]
     );
 
@@ -47,17 +54,12 @@ const getAllNotes = async (req, res) => {
 const createNote = async (req, res) => {
   const userId = req.user.id;
   try {
-    const { title, content } = req.body;
+    const { title, content, category_id } = req.body;
 
-    if (!title || !content) {
-      return res.status(400).json({
-        message: "Title and content are required",
-      });
-    }
-
+    const modifiedCategoryId = Number(category_id);
     const result = await pool.query(
-      "INSERT INTO notes(title, content, user_id) VALUES($1, $2, $3) RETURNING *",
-      [title, content, userId]
+      `INSERT INTO notes(title, content, user_id, category_id) VALUES($1, $2, $3, $4) RETURNING *`,
+      [title, content, userId, modifiedCategoryId]
     );
 
     res.status(201).json({
