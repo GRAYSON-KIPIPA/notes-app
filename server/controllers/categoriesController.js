@@ -15,20 +15,32 @@ const getAllCategories = async (req, res) => {
     res.status(200).json(result.rows);
   } catch (error) {
     console.error(error);
+    res.status(500).json({
+      message: "Server error",
+    });
   }
 };
 
 const getSingleCategory = async (req, res) => {
   const id = Number(req.params.id);
-  const result = await pool.query(`SELECT * FROM categories WHERE id=$1`, [id]);
+  try {
+    const result = await pool.query(`SELECT * FROM categories WHERE id=$1`, [
+      id,
+    ]);
 
-  if (result.rows.length === 0) {
-    return res.status(404).json({
-      message: "Category not found",
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        message: "Category not found",
+      });
+    }
+
+    res.status(200).json(result.rows[0]);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Server error",
     });
   }
-
-  res.status(200).json(result.rows[0]);
 };
 const createCategory = async (req, res) => {
   try {
@@ -87,6 +99,12 @@ const updateCategory = async (req, res) => {
     `UPDATE categories SET name=$1 WHERE id=$2 RETURNING *`,
     [name, id]
   );
+
+  if (result.rows.length === 0) {
+    return res.status(404).json({
+      message: "Category not found",
+    });
+  }
   const category = result.rows[0];
   console.log("UPDATED: ", result.rows[0]);
   res.status(200).json({
