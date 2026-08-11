@@ -91,26 +91,32 @@ const deleteCategory = async (req, res) => {
 };
 
 const updateCategory = async (req, res) => {
-  console.log("UPDATE IS NOW RUNNING");
-  const id = Number(req.params.id);
-  const { name } = req.body;
+  try {
+    const id = Number(req.params.id);
+    const { name } = req.body;
 
-  const result = await pool.query(
-    `UPDATE categories SET name=$1 WHERE id=$2 RETURNING *`,
-    [name, id]
-  );
+    const result = await pool.query(
+      `UPDATE categories SET name=$1 WHERE id=$2 RETURNING *`,
+      [name, id]
+    );
 
-  if (result.rows.length === 0) {
-    return res.status(404).json({
-      message: "Category not found",
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        message: "Category not found",
+      });
+    }
+    const category = result.rows[0];
+    console.log("UPDATED: ", result.rows[0]);
+    res.status(200).json({
+      message: "Category updated successfully",
+      category,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Server error",
     });
   }
-  const category = result.rows[0];
-  console.log("UPDATED: ", result.rows[0]);
-  res.status(200).json({
-    message: "Category updated successfully",
-    category,
-  });
 };
 
 module.exports = {
