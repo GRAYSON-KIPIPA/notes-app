@@ -12,9 +12,7 @@ const getAllUsers = async (req, res) => {
       users: result.rows,
     });
   } catch (error) {
-    res.status(500).json({
-      message: "Server error",
-    });
+    next(error);
   }
 };
 
@@ -48,10 +46,7 @@ const registerUser = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      message: "Server error",
-    });
+    next(error);
   }
 };
 
@@ -104,10 +99,7 @@ const login = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      message: "Server error",
-    });
+    next(error);
   }
 };
 

@@ -14,10 +14,7 @@ const getAllCategories = async (req, res) => {
 
     res.status(200).json(result.rows);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      message: "Server error",
-    });
+    next(error);
   }
 };
 
@@ -36,10 +33,7 @@ const getSingleCategory = async (req, res) => {
 
     res.status(200).json(result.rows[0]);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      message: "Server error",
-    });
+    next(error);
   }
 };
 const createCategory = async (req, res) => {
@@ -56,10 +50,7 @@ const createCategory = async (req, res) => {
       category,
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      message: "Server error",
-    });
+    next(error);
   }
 };
 
@@ -83,10 +74,7 @@ const deleteCategory = async (req, res) => {
       category: result.rows[0],
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      message: "Server error",
-    });
+    next(error);
   }
 };
 
@@ -112,10 +100,7 @@ const updateCategory = async (req, res) => {
       category,
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      message: "Server error",
-    });
+    next(error);
   }
 };
 

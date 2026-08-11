@@ -42,11 +42,7 @@ const getAllNotes = async (req, res) => {
       notes: result.rows,
     });
   } catch (err) {
-    console.error(err);
-
-    res.status(500).json({
-      message: "Server error",
-    });
+    next(error);
   }
 };
 
@@ -67,10 +63,7 @@ const createNote = async (req, res) => {
       note: result.rows[0],
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      message: "Server error",
-    });
+    next(error);
   }
 };
 
@@ -93,10 +86,7 @@ const getNote = async (req, res) => {
 
     res.status(200).json(result.rows[0]);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      message: "Server error",
-    });
+    next(error);
   }
 };
 
@@ -125,10 +115,7 @@ const updateNote = async (req, res) => {
 
     res.status(200).json(result.rows[0]);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      message: "Server error",
-    });
+    next(error);
   }
 };
 
@@ -154,10 +141,7 @@ const deleteNote = async (req, res) => {
       note: result.rows[0],
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      message: "Server error",
-    });
+    next(error);
   }
 };
 
