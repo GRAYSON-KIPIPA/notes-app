@@ -2,7 +2,7 @@ const pool = require("../db");
 // const authMiddleware = require("../middleware/authMiddleware");
 
 //GET ALL NOTES
-const getAllNotes = async (req, res) => {
+const getAllNotes = async (req, res, next) => {
   const userId = req.user.id;
 
   //Get page and limit from query params for Pagination
@@ -47,7 +47,7 @@ const getAllNotes = async (req, res) => {
 };
 
 //CREATING A NOTE
-const createNote = async (req, res) => {
+const createNote = async (req, res, next) => {
   const userId = req.user.id;
   try {
     const { title, content, category_id } = req.body;
@@ -68,7 +68,7 @@ const createNote = async (req, res) => {
 };
 
 //GET A SINGLE NOTE
-const getNote = async (req, res) => {
+const getNote = async (req, res, next) => {
   try {
     const id = Number(req.params.id);
     const userId = req.user.id;
@@ -91,7 +91,7 @@ const getNote = async (req, res) => {
 };
 
 //UPDATING A NOTE
-const updateNote = async (req, res) => {
+const updateNote = async (req, res, next) => {
   const userId = req.user.id;
   try {
     const id = Number(req.params.id);
@@ -120,7 +120,7 @@ const updateNote = async (req, res) => {
 };
 
 //DELETE A NOTE
-const deleteNote = async (req, res) => {
+const deleteNote = async (req, res, next) => {
   try {
     const id = Number(req.params.id);
     const userId = req.user.id;

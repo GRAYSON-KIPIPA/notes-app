@@ -1,6 +1,6 @@
 const pool = require("../db");
 
-const getAllCategories = async (req, res) => {
+const getAllCategories = async (req, res, next) => {
   //   const userId = req.user.id;
 
   try {
@@ -18,7 +18,7 @@ const getAllCategories = async (req, res) => {
   }
 };
 
-const getSingleCategory = async (req, res) => {
+const getSingleCategory = async (req, res, next) => {
   const id = Number(req.params.id);
   try {
     const result = await pool.query(`SELECT * FROM categories WHERE id=$1`, [
@@ -36,7 +36,7 @@ const getSingleCategory = async (req, res) => {
     next(error);
   }
 };
-const createCategory = async (req, res) => {
+const createCategory = async (req, res, next) => {
   try {
     const { name } = req.body;
 
@@ -54,7 +54,7 @@ const createCategory = async (req, res) => {
   }
 };
 
-const deleteCategory = async (req, res) => {
+const deleteCategory = async (req, res, next) => {
   const id = Number(req.params.id);
 
   try {
@@ -78,7 +78,7 @@ const deleteCategory = async (req, res) => {
   }
 };
 
-const updateCategory = async (req, res) => {
+const updateCategory = async (req, res, next) => {
   try {
     const id = Number(req.params.id);
     const { name } = req.body;
