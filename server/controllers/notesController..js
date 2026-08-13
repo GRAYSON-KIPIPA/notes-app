@@ -20,15 +20,28 @@ const getAllNotes = async (req, res, next) => {
     ? req.query.sort
     : "id";
   const order = req.query.order === "desc" ? "DESC" : "ASC";
+
+  //Filter notes by category
+  const category_id = req.query.category_id
+    ? Number(req.query.category_id)
+    : null;
+
   try {
     const result = await pool.query(
-      `SELECT * FROM notes WHERE user_id=$1 AND title ILIKE $4 ORDER BY ${sort} ${order} LIMIT $2 OFFSET $3`,
-      [userId, limit, offset, `%${search}%`]
+      `SELECT n.id, n.title, n.content, n.user_id,
+       n.category_id, c.name AS category
+        FROM notes n LEFT JOIN categories c
+        ON n.category_id=c.id WHERE n.user_id=$1 AND
+        n.category_id=$5 AND
+        title ILIKE $4 ORDER BY ${sort} ${order}
+        LIMIT $2 OFFSET $3`,
+      [userId, limit, offset, `%${search}%`, category_id]
     );
 
     const totalNotesResult = await pool.query(
-      `SELECT COUNT(*) AS total FROM notes WHERE user_id=$1 AND title ILIKE $2 `,
-      [userId, `%${search}%`]
+      `SELECT COUNT(*) AS total FROM notes WHERE user_id=$1 AND title ILIKE $2
+        AND category_id=$3`,
+      [userId, `%${search}%`, category_id]
     );
 
     const totalNotes = Number(totalNotesResult.rows[0].total);
@@ -42,7 +55,7 @@ const getAllNotes = async (req, res, next) => {
       notes: result.rows,
     });
   } catch (err) {
-    next(error);
+    next(err);
   }
 };
 
@@ -74,7 +87,11 @@ const getNote = async (req, res, next) => {
     const userId = req.user.id;
 
     const result = await pool.query(
-      "SELECT * FROM notes WHERE id=$1 AND user_id=$2",
+      `SELECT n.id, n.title, n.content,
+      c.name as category, u.email AS owner_email FROM notes n JOIN users u
+       ON n.user_id = u.id LEFT JOIN categories c
+       ON n.category_id=c.id
+      WHERE n.id=$1 AND n.user_id=$2`,
       [id, userId]
     );
 
@@ -93,9 +110,10 @@ const getNote = async (req, res, next) => {
 //UPDATING A NOTE
 const updateNote = async (req, res, next) => {
   const userId = req.user.id;
+
   try {
     const id = Number(req.params.id);
-    const { title, content } = req.body;
+    const { title, content, category_id } = req.body;
 
     if (!title || !content) {
       return res.status(400).json({
@@ -103,8 +121,8 @@ const updateNote = async (req, res, next) => {
       });
     }
     const result = await pool.query(
-      "UPDATE notes SET title=$1, content=$2 WHERE id=$3 AND user_id=$4 RETURNING *",
-      [title, content, id, userId]
+      "UPDATE notes SET title=$1, content=$2, category_id = $3 WHERE id=$4 AND user_id=$5 RETURNING *",
+      [title, content, category_id, id, userId]
     );
 
     if (result.rows.length === 0) {

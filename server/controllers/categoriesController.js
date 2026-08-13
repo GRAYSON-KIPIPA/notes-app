@@ -1,4 +1,5 @@
 const pool = require("../db");
+const AppError = require("../errors/AppError");
 
 const getAllCategories = async (req, res, next) => {
   //   const userId = req.user.id;
@@ -7,9 +8,7 @@ const getAllCategories = async (req, res, next) => {
     const result = await pool.query("SELECT * FROM categories");
 
     if (result.rows.length === 0) {
-      return res.status(404).json({
-        message: "Categories not found",
-      });
+      throw new AppError("Categories not found");
     }
 
     res.status(200).json(result.rows);
@@ -26,9 +25,7 @@ const getSingleCategory = async (req, res, next) => {
     ]);
 
     if (result.rows.length === 0) {
-      return res.status(404).json({
-        message: "Category not found",
-      });
+      throw new AppError("Category not found", 404);
     }
 
     res.status(200).json(result.rows[0]);
@@ -64,9 +61,7 @@ const deleteCategory = async (req, res, next) => {
     );
 
     if (result.rows.length === 0) {
-      return res.status(404).json({
-        message: "Category not found",
-      });
+      throw new AppError("Categories not found");
     }
 
     res.status(200).json({
@@ -88,10 +83,14 @@ const updateCategory = async (req, res, next) => {
       [name, id]
     );
 
+    // if (result.rows.length === 0) {
+    //   return res.status(404).json({
+    //     message: "Category not found",
+    //   });
+    // }
+
     if (result.rows.length === 0) {
-      return res.status(404).json({
-        message: "Category not found",
-      });
+      throw new AppError("Category not found", 404);
     }
     const category = result.rows[0];
     console.log("UPDATED: ", result.rows[0]);
