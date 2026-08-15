@@ -8,6 +8,11 @@ const errorMiddleware = (err, req, res, next) => {
   }
 
   if (err.code === "23503") {
+    if (err.constraint === "notes_category_id_fkey") {
+      return res.status(409).json({
+        message: "Cannot delete category because it is being used by notes",
+      });
+    }
     return res.status(400).json({
       message: "Referenced resource does not exist",
     });

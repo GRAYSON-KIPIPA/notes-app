@@ -34,7 +34,7 @@ const registerUser = async (req, res, next) => {
 
     const result = await pool.query(
       "INSERT INTO users(name, email, password) VALUES($1,$2,$3) RETURNING *",
-      [name, email, hashedPassword]
+      [name, email, hashedPassword],
     );
 
     const user = result.rows[0];
@@ -86,7 +86,7 @@ const login = async (req, res, next) => {
       process.env.JWT_SECRET,
       {
         expiresIn: "1h",
-      }
+      },
     );
 
     res.status(200).json({
@@ -103,4 +103,27 @@ const login = async (req, res, next) => {
   }
 };
 
-module.exports = { registerUser, getAllUsers, login };
+const deleteUsers = async (req, res) => {
+  console.log("USER: ", req.user);
+  const id = req.user.id;
+  console.log("ID: ", id);
+
+  try {
+    const result = pool.query(`DELETE * FROM users WHERE id=$1`, [id]);
+
+    res.status(200).json({
+      message: "User deleted successfully",
+      user: {
+        username: req.user.name,
+        email: req.user.email,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    req.status(500).json({
+      message: "Server error",
+    });
+  }
+};
+
+module.exports = { registerUser, getAllUsers, login, deleteUsers };
