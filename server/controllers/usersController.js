@@ -16,6 +16,31 @@ const getAllUsers = async (req, res, next) => {
   }
 };
 
+const getMyProfile = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+
+    const result = await pool.query(
+      `SELECT id, name, email,role FROM users WHERE id=$1`,
+      [userId],
+    );
+
+    console.log("USER: ", result.rows[0]);
+    const user = result?.rows[0];
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    res.status(200).json({
+      user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const registerUser = async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
@@ -126,4 +151,10 @@ const deleteUsers = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, getAllUsers, login, deleteUsers };
+module.exports = {
+  registerUser,
+  getAllUsers,
+  getMyProfile,
+  login,
+  deleteUsers,
+};

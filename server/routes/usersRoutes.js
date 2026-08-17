@@ -10,9 +10,11 @@ const {
   getAllUsers,
   login,
   deleteUsers,
+  getMyProfile,
 } = require("../controllers/usersController");
 
 router.get("/", getAllUsers);
+router.get("/me", authMiddleware, getMyProfile);
 router.post("/register", registerValidation, validate, registerUser);
 router.post("/login", loginValidation, validate, login);
 router.delete("/", authMiddleware, deleteUsers);

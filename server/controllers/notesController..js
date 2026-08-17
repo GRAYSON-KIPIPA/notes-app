@@ -31,17 +31,17 @@ const getAllNotes = async (req, res, next) => {
       `SELECT n.id, n.title, n.content, n.user_id,
        n.category_id, c.name AS category
         FROM notes n LEFT JOIN categories c
-        ON n.category_id=c.id WHERE n.user_id=$1 AND
-        n.category_id=$5 AND
+        ON n.category_id=c.id WHERE n.user_id=$1
+        AND ($5::integer IS NULL OR n.category_id = $5) AND
         title ILIKE $4 ORDER BY ${sort} ${order}
         LIMIT $2 OFFSET $3`,
-      [userId, limit, offset, `%${search}%`, category_id]
+      [userId, limit, offset, `%${search}%`, category_id],
     );
 
     const totalNotesResult = await pool.query(
       `SELECT COUNT(*) AS total FROM notes WHERE user_id=$1 AND title ILIKE $2
-        AND category_id=$3`,
-      [userId, `%${search}%`, category_id]
+        AND ($3::integer IS NULL OR category_id = $3)`,
+      [userId, `%${search}%`, category_id],
     );
 
     const totalNotes = Number(totalNotesResult.rows[0].total);
@@ -68,7 +68,7 @@ const createNote = async (req, res, next) => {
     const modifiedCategoryId = Number(category_id);
     const result = await pool.query(
       `INSERT INTO notes(title, content, user_id, category_id) VALUES($1, $2, $3, $4) RETURNING *`,
-      [title, content, userId, modifiedCategoryId]
+      [title, content, userId, modifiedCategoryId],
     );
 
     res.status(201).json({
@@ -92,7 +92,7 @@ const getNote = async (req, res, next) => {
        ON n.user_id = u.id LEFT JOIN categories c
        ON n.category_id=c.id
       WHERE n.id=$1 AND n.user_id=$2`,
-      [id, userId]
+      [id, userId],
     );
 
     if (result.rows.length === 0) {
@@ -122,7 +122,7 @@ const updateNote = async (req, res, next) => {
     }
     const result = await pool.query(
       "UPDATE notes SET title=$1, content=$2, category_id = $3 WHERE id=$4 AND user_id=$5 RETURNING *",
-      [title, content, category_id, id, userId]
+      [title, content, category_id, id, userId],
     );
 
     if (result.rows.length === 0) {
@@ -145,7 +145,7 @@ const deleteNote = async (req, res, next) => {
 
     const result = await pool.query(
       "DELETE FROM notes WHERE id=$1 AND user_id=$2 RETURNING *",
-      [id, userId]
+      [id, userId],
     );
 
     if (result.rows.length === 0) {
