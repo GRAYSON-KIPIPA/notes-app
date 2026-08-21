@@ -11,12 +11,23 @@ const {
   login,
   deleteUsers,
   getMyProfile,
+  updateMyProfile,
 } = require("../controllers/usersController");
+const {
+  updateProfileValidator,
+} = require("../validators/updateProfileValidator");
 
 router.get("/", getAllUsers);
 router.get("/me", authMiddleware, getMyProfile);
 router.post("/register", registerValidation, validate, registerUser);
 router.post("/login", loginValidation, validate, login);
 router.delete("/", authMiddleware, deleteUsers);
+router.put(
+  "/me",
+  authMiddleware,
+  updateProfileValidator,
+  validate,
+  updateMyProfile,
+);
 
 module.exports = router;

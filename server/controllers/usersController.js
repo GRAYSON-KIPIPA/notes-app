@@ -25,7 +25,6 @@ const getMyProfile = async (req, res, next) => {
       [userId],
     );
 
-    console.log("USER: ", result.rows[0]);
     const user = result?.rows[0];
     if (result.rows.length === 0) {
       return res.status(404).json({
@@ -151,10 +150,49 @@ const deleteUsers = async (req, res) => {
   }
 };
 
+const updateMyProfile = async (req, res, next) => {
+  const userId = req.user.id;
+
+  try {
+    const { name, email } = req.body;
+
+    const existingUser = await pool.query(
+      `SELECT id FROM users WHERE email=$1 AND id<>$2`,
+      [email, userId],
+    );
+
+    if (existingUser.rows.length > 0) {
+      return res.status(409).json({
+        message: "Email already exists",
+      });
+    }
+
+    const result = await pool.query(
+      `UPDATE users SET name=$1, email=$2 
+      WHERE id=$3 RETURNING id, name, email, role`,
+      [name, email, userId],
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    res.status(200).json({
+      message: "Profile updated successfully",
+      user: result.rows[0],
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   registerUser,
   getAllUsers,
   getMyProfile,
   login,
   deleteUsers,
+  updateMyProfile,
 };
