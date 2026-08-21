@@ -133,7 +133,7 @@ const deleteUsers = async (req, res) => {
   console.log("ID: ", id);
 
   try {
-    const result = pool.query(`DELETE * FROM users WHERE id=$1`, [id]);
+    const result = await pool.query(`DELETE FROM users WHERE id=$1`, [id]);
 
     res.status(200).json({
       message: "User deleted successfully",
@@ -188,6 +188,48 @@ const updateMyProfile = async (req, res, next) => {
   }
 };
 
+const changeUserPassword = async (req, res, next) => {
+  const { currentPassword, newPassword } = req.body;
+  try {
+    const userId = req.user.id;
+    const oldPasswordDb = await pool.query(
+      `SELECT password FROM users WHERE id=$1`,
+      [userId],
+    );
+
+    if (oldPasswordDb.rows.length === 0) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    const oldPassword = oldPasswordDb.rows[0].password;
+
+    const isPassword = await bcrypt.compare(currentPassword, oldPassword);
+
+    if (!isPassword) {
+      return res.status(401).json({
+        message: "current Password was not correct",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const result = await pool.query(
+      `UPDATE users SET password=$2 WHERE id=$1 RETURNING id, name, email, role`,
+      [userId, hashedPassword],
+    );
+
+    const user = result.rows[0];
+
+    res.status(200).json({
+      message: "New Password updated successfully",
+      user: result.rows[0],
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   registerUser,
   getAllUsers,
@@ -195,4 +237,5 @@ module.exports = {
   login,
   deleteUsers,
   updateMyProfile,
+  changeUserPassword,
 };

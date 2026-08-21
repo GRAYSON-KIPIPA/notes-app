@@ -1,6 +1,9 @@
 const express = require("express");
 const { loginValidation } = require("../validators/loginValidator");
 const { registerValidation } = require("../validators/authValidator");
+const {
+  changePasswordValidator,
+} = require("../validators/changePasswordValidator");
 const validate = require("../middleware/validationResult");
 const router = express.Router();
 const authMiddleware = require("../middleware/authMiddleware");
@@ -12,6 +15,7 @@ const {
   deleteUsers,
   getMyProfile,
   updateMyProfile,
+  changeUserPassword,
 } = require("../controllers/usersController");
 const {
   updateProfileValidator,
@@ -28,6 +32,13 @@ router.put(
   updateProfileValidator,
   validate,
   updateMyProfile,
+);
+router.put(
+  "/change-password",
+  authMiddleware,
+  changePasswordValidator,
+  validate,
+  changeUserPassword,
 );
 
 module.exports = router;
