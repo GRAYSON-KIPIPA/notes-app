@@ -250,6 +250,36 @@ const changeUserPassword = async (req, res, next) => {
   }
 };
 
+const deleteUserById = async (req, res, next) => {
+  const id = Number(req.params.id);
+  const adminId = req.user.id;
+  try {
+    if (id === adminId) {
+      return res.status(400).json({
+        message: "You cannot delete your own account using this endpoint",
+      });
+    }
+
+    const result = await pool.query(
+      `DELETE FROM users WHERE id=$1 RETURNING id, name, email, role`,
+      [id],
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(400).json({
+        message: "User not exists",
+      });
+    }
+
+    res.status(200).json({
+      message: "User deleted successfully",
+      user: result.rows[0],
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   registerUser,
   getAllUsers,
@@ -259,4 +289,5 @@ module.exports = {
   deleteUsers,
   updateMyProfile,
   changeUserPassword,
+  deleteUserById,
 };

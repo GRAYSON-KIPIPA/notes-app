@@ -17,6 +17,7 @@ const {
   deleteUsers,
   updateMyProfile,
   changeUserPassword,
+  deleteUserById,
 } = require("../controllers/usersController");
 const {
   updateProfileValidator,
@@ -28,7 +29,7 @@ router.get("/me", authMiddleware, getMyProfile);
 router.get("/:id", authMiddleware, roleMiddleware("admin"), getUserById);
 router.post("/register", registerValidation, validate, registerUser);
 router.post("/login", loginValidation, validate, login);
-router.delete("/", authMiddleware, roleMiddleware("admin"), deleteUsers);
+router.delete("/", authMiddleware, deleteUsers);
 router.put(
   "/me",
   authMiddleware,
@@ -43,5 +44,6 @@ router.put(
   validate,
   changeUserPassword,
 );
+router.delete("/:id", authMiddleware, roleMiddleware("admin"), deleteUserById);
 
 module.exports = router;
