@@ -85,15 +85,30 @@ const getNote = async (req, res, next) => {
   try {
     const id = Number(req.params.id);
     const userId = req.user.id;
-
-    const result = await pool.query(
-      `SELECT n.id, n.title, n.content,
+    let result;
+    if (req.user.role === "admin") {
+      result = await pool.query(
+        `SELECT n.id, n.title, n.content,
+      c.name as category, u.email AS owner_email FROM notes n JOIN users u
+       ON n.user_id = u.id LEFT JOIN categories c
+       ON n.category_id=c.id
+      WHERE n.id=$1`,
+        [id],
+      );
+    } else if (req.user.role === "user") {
+      result = await pool.query(
+        `SELECT n.id, n.title, n.content,
       c.name as category, u.email AS owner_email FROM notes n JOIN users u
        ON n.user_id = u.id LEFT JOIN categories c
        ON n.category_id=c.id
       WHERE n.id=$1 AND n.user_id=$2`,
-      [id, userId],
-    );
+        [id, userId],
+      );
+    } else {
+      return res.status(403).json({
+        message: "Invalid user role",
+      });
+    }
 
     if (result.rows.length === 0) {
       return res.status(404).json({
@@ -163,4 +178,10 @@ const deleteNote = async (req, res, next) => {
   }
 };
 
-module.exports = { getAllNotes, createNote, getNote, updateNote, deleteNote };
+module.exports = {
+  getAllNotes,
+  createNote,
+  getNote,
+  updateNote,
+  deleteNote,
+};
