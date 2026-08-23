@@ -129,16 +129,29 @@ const updateNote = async (req, res, next) => {
   try {
     const id = Number(req.params.id);
     const { title, content, category_id } = req.body;
+    let result;
 
     if (!title || !content) {
       return res.status(400).json({
         message: "Title and content are required",
       });
     }
-    const result = await pool.query(
-      "UPDATE notes SET title=$1, content=$2, category_id = $3 WHERE id=$4 AND user_id=$5 RETURNING *",
-      [title, content, category_id, id, userId],
-    );
+
+    if (req.user.role === "admin") {
+      result = await pool.query(
+        "UPDATE notes SET title=$1, content=$2, category_id = $3 WHERE id=$4 RETURNING *",
+        [title, content, category_id, id],
+      );
+    } else if (req.user.role === "user") {
+      result = await pool.query(
+        "UPDATE notes SET title=$1, content=$2, category_id = $3 WHERE id=$4 AND user_id=$5 RETURNING *",
+        [title, content, category_id, id, userId],
+      );
+    } else {
+      return res.status(403).json({
+        message: "Not a valid user role",
+      });
+    }
 
     if (result.rows.length === 0) {
       return res.status(404).json({
