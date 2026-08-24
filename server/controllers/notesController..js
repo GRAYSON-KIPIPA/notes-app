@@ -170,11 +170,22 @@ const deleteNote = async (req, res, next) => {
   try {
     const id = Number(req.params.id);
     const userId = req.user.id;
+    let result;
 
-    const result = await pool.query(
-      "DELETE FROM notes WHERE id=$1 AND user_id=$2 RETURNING *",
-      [id, userId],
-    );
+    if (req.user.role === "admin") {
+      result = await pool.query("DELETE FROM notes WHERE id=$1 RETURNING *", [
+        id,
+      ]);
+    } else if (req.user.role === "user") {
+      result = await pool.query(
+        "DELETE FROM notes WHERE id=$1 AND user_id=$2 RETURNING *",
+        [id, userId],
+      );
+    } else {
+      res.status(403).json({
+        message: "Not a valid user role",
+      });
+    }
 
     if (result.rows.length === 0) {
       return res.status(404).json({
