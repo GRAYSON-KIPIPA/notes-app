@@ -26,23 +26,53 @@ const getAllNotes = async (req, res, next) => {
     ? Number(req.query.category_id)
     : null;
 
+  let result;
+  let totalNotesResult;
   try {
-    const result = await pool.query(
-      `SELECT n.id, n.title, n.content, n.user_id,
+    if (req.user.role === "admin") {
+      result = await pool.query(
+        `SELECT n.id, n.title, n.content, n.user_id,
+       n.category_id, c.name AS category u.email as owner_email
+        FROM notes n LEFT JOIN categories c
+        ON n.category_id=c.id WHERE ($4::integer IS NULL OR n.category_id = $4) AND
+        title ILIKE $3 ORDER BY ${sort} ${order}
+        LIMIT $1 OFFSET $2`,
+        [limit, offset, `%${search}%`, category_id],
+      );
+    } else if (req.user.role === "user") {
+      result = await pool.query(
+        `SELECT n.id, n.title, n.content, n.user_id,
        n.category_id, c.name AS category
         FROM notes n LEFT JOIN categories c
         ON n.category_id=c.id WHERE n.user_id=$1
         AND ($5::integer IS NULL OR n.category_id = $5) AND
-        title ILIKE $4 ORDER BY ${sort} ${order}
+        n.title ILIKE $4 ORDER BY ${sort} ${order}
         LIMIT $2 OFFSET $3`,
-      [userId, limit, offset, `%${search}%`, category_id],
-    );
+        [userId, limit, offset, `%${search}%`, category_id],
+      );
+    } else {
+      return res.status(403).json({
+        message: "User role not found",
+      });
+    }
 
-    const totalNotesResult = await pool.query(
-      `SELECT COUNT(*) AS total FROM notes WHERE user_id=$1 AND title ILIKE $2
+    if (req.user.role === "admin") {
+      totalNotesResult = await pool.query(
+        `SELECT COUNT(*) AS total FROM notes WHERE title ILIKE $1
+        AND ($2::integer IS NULL OR category_id = $2)`,
+        [`%${search}%`, category_id],
+      );
+    } else if (req.user.role === "user") {
+      totalNotesResult = await pool.query(
+        `SELECT COUNT(*) AS total FROM notes WHERE user_id=$1 AND title ILIKE $2
         AND ($3::integer IS NULL OR category_id = $3)`,
-      [userId, `%${search}%`, category_id],
-    );
+        [userId, `%${search}%`, category_id],
+      );
+    } else {
+      return res.status(403).json({
+        message: "User role not valid",
+      });
+    }
 
     const totalNotes = Number(totalNotesResult.rows[0].total);
     const totalPages = Math.ceil(totalNotes / limit);
