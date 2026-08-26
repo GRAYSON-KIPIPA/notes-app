@@ -32,8 +32,8 @@ const getAllNotes = async (req, res, next) => {
     if (req.user.role === "admin") {
       result = await pool.query(
         `SELECT n.id, n.title, n.content, n.user_id,
-       n.category_id, c.name AS category u.email as owner_email
-        FROM notes n LEFT JOIN categories c
+       n.category_id, c.name AS category, u.email as owner_email
+        FROM notes n JOIN users u ON n.user_id = u.id LEFT JOIN categories c
         ON n.category_id=c.id WHERE ($4::integer IS NULL OR n.category_id = $4) AND
         title ILIKE $3 ORDER BY ${sort} ${order}
         LIMIT $1 OFFSET $2`,
@@ -43,7 +43,7 @@ const getAllNotes = async (req, res, next) => {
       result = await pool.query(
         `SELECT n.id, n.title, n.content, n.user_id,
        n.category_id, c.name AS category
-        FROM notes n LEFT JOIN categories c
+        FROM notes n JOIN users u ON n.user_id = u.id LEFT JOIN categories c
         ON n.category_id=c.id WHERE n.user_id=$1
         AND ($5::integer IS NULL OR n.category_id = $5) AND
         n.title ILIKE $4 ORDER BY ${sort} ${order}
@@ -212,7 +212,7 @@ const deleteNote = async (req, res, next) => {
         [id, userId],
       );
     } else {
-      res.status(403).json({
+      return res.status(403).json({
         message: "Not a valid user role",
       });
     }

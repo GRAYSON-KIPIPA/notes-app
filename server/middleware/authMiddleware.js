@@ -26,7 +26,7 @@ const authMiddleware = (req, res, next) => {
   } catch (error) {
     console.error(error);
     return res.status(401).json({
-      message: "Authorization header is missing",
+      message: "Invalid or expired token",
     });
   }
 };

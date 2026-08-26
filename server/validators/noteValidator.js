@@ -13,10 +13,9 @@ const noteValidation = [
     .notEmpty()
     .withMessage("Content is required")
     .isLength({ min: 2 })
-    .withMessage("A note at least have two characters"),
+    .withMessage("A note must have at least two characters"),
 
   body("category_id")
-    .trim()
     .notEmpty()
     .withMessage("category_id is required")
     .isInt()
