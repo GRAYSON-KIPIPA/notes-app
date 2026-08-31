@@ -42,7 +42,7 @@ const getAllNotes = async (req, res, next) => {
     } else if (req.user.role === "user") {
       result = await pool.query(
         `SELECT n.id, n.title, n.content, n.user_id,
-       n.category_id, c.name AS category
+       n.category_id, c.name AS category, u.email as owner
         FROM notes n JOIN users u ON n.user_id = u.id LEFT JOIN categories c
         ON n.category_id=c.id WHERE n.user_id=$1
         AND ($5::integer IS NULL OR n.category_id = $5) AND

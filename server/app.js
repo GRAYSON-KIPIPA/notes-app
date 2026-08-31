@@ -11,9 +11,9 @@ app.use(express.json());
 app.use(cors());
 
 //ROUTES
-app.use("/notes", notesRoutes);
-app.use("/users", usersRoutes);
-app.use("/categories", categoriesRoutes);
+app.use("/api/v1/notes", notesRoutes);
+app.use("/api/v1/users", usersRoutes);
+app.use("/api/v1/categories", categoriesRoutes);
 
 app.use(errorMiddleware);
 module.exports = app;
