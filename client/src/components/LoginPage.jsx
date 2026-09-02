@@ -1,12 +1,18 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import { loginUser } from "../services/authService";
+import CircularProgress from "@mui/material/CircularProgress";
 
 function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const navigate = useNavigate();
 
   const handleChangeEmail = (e) => {
     setEmail(e.target.value);
@@ -17,25 +23,28 @@ function LoginPage() {
 
   const handleLogin = async () => {
     try {
+      setLoading(true);
+      setError("");
       const data = await loginUser(email, password);
       localStorage.setItem("token", data.token);
+
+      navigate("/notes");
     } catch (error) {
       console.error("LOGIN ERROR: ", error);
+
+      setError(
+        error.response?.data?.message || "Login failed. Please try again",
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleGetAllNotes = async () => {
-    try {
-      const data = await getAllNotes();
-      console.log("NOTES: ", data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
   return (
     <div>
       <h3>LOGIN PAGE</h3>
 
+      {error && <p style={{ color: "red" }}>{error}</p>}
       <Box
         component="section"
         sx={{ p: 2, border: "1px dashed grey", width: "30%", borderRadius: 5 }}
@@ -61,8 +70,8 @@ function LoginPage() {
           />
         </div>
         <div style={{ margin: 5 }}>
-          <Button variant="outlined" onClick={handleLogin}>
-            Login
+          <Button disabled={loading} variant="outlined" onClick={handleLogin}>
+            {loading ? <CircularProgress /> : "Login"}
           </Button>
         </div>
       </Box>

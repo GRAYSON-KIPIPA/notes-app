@@ -80,7 +80,7 @@ export default function MenuAppBar() {
               open={Boolean(anchorEl)}
               onClose={handleClose}
             >
-              <MenuItem>
+              <MenuItem onClick={handleClose}>
                 <Link style={{ textDecoration: "none" }} to="/profile">
                   Profile
                 </Link>

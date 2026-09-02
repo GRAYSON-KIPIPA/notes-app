@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import NotesPage from "./components/NotesPage";
 import MainLayout from "./components/MainLayout";
 import ProfilePage from "./components/ProfilePage";
+import AddNote from "./components/AddNote";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
             <Route element={<MainLayout />}>
               <Route path="/notes" element={<NotesPage />} />
               <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/add-note" element={<AddNote />} />
             </Route>
           </Routes>
         </div>

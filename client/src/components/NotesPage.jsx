@@ -67,7 +67,12 @@ function NotesPage() {
           )}
         </div>
       </Box>
-      <Box sx={{ flexGrow: 1, maxWidth: 752 }}>
+      <Box
+        sx={{
+          flexGrow: 1,
+          maxWidth: 752,
+        }}
+      >
         <TableContainer component={Paper}>
           <Table sx={{ minWidth: 700 }} aria-label="customized table">
             <TableHead>

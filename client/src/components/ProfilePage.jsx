@@ -69,7 +69,7 @@ function ProfilePage() {
           backgroundSize: "cover",
           backgroundPosition: "top",
           width: "100%",
-          height: "250px",
+          height: "220px",
           display: "flex",
           justifyContent: "right",
           alignItems: "",
