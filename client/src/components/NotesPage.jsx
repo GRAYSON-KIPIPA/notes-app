@@ -10,6 +10,7 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import CircularProgress from "@mui/material/CircularProgress";
+import { useNavigate } from "react-router";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -35,6 +36,7 @@ function NotesPage() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleGetAllNote = async () => {
     try {
@@ -43,7 +45,6 @@ function NotesPage() {
 
       const data = await getAllNotes();
       setNotes(data.notes);
-      // console.log("Notes: ", data);
     } catch (error) {
       console.error(error);
     } finally {
@@ -54,7 +55,11 @@ function NotesPage() {
   useEffect(() => {
     handleGetAllNote();
   }, []);
-  console.log("NOTES: ", notes);
+
+  const handleEditNote = (id) => {
+    navigate(`/update-note/${id}`);
+  };
+
   return (
     <div>
       <h4>NOTES</h4>
@@ -82,6 +87,7 @@ function NotesPage() {
                 <StyledTableCell align="center">Content</StyledTableCell>
                 <StyledTableCell align="center">Category</StyledTableCell>
                 <StyledTableCell align="center">Owner</StyledTableCell>
+                <StyledTableCell align="center">Actions</StyledTableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -98,6 +104,16 @@ function NotesPage() {
                     {row.category}
                   </StyledTableCell>
                   <StyledTableCell align="center">{row.owner}</StyledTableCell>
+                  <StyledTableCell align="center">
+                    <button
+                      onClick={() => handleEditNote(row.id)}
+                      size="small"
+                      variant="outlined"
+                      style={{ backgroundColor: "lightpink", borderRadius: 6 }}
+                    >
+                      edit
+                    </button>
+                  </StyledTableCell>
                 </StyledTableRow>
               ))}
             </TableBody>

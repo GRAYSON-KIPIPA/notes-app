@@ -119,7 +119,7 @@ const getNote = async (req, res, next) => {
     if (req.user.role === "admin") {
       result = await pool.query(
         `SELECT n.id, n.title, n.content,
-      c.name as category, u.email AS owner_email FROM notes n JOIN users u
+      c.name as category,c.id as category_id, u.email AS owner_email FROM notes n JOIN users u
        ON n.user_id = u.id LEFT JOIN categories c
        ON n.category_id=c.id
       WHERE n.id=$1`,
@@ -128,7 +128,7 @@ const getNote = async (req, res, next) => {
     } else if (req.user.role === "user") {
       result = await pool.query(
         `SELECT n.id, n.title, n.content,
-      c.name as category, u.email AS owner_email FROM notes n JOIN users u
+      c.name as category,c.id as category_id, u.email AS owner_email FROM notes n JOIN users u
        ON n.user_id = u.id LEFT JOIN categories c
        ON n.category_id=c.id
       WHERE n.id=$1 AND n.user_id=$2`,

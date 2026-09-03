@@ -5,6 +5,7 @@ const noteValidation = [
     .trim()
     .notEmpty()
     .withMessage("Title is required")
+    .bail()
     .isLength({ min: 2 })
     .withMessage("Title must have at least two characters"),
 
@@ -12,12 +13,14 @@ const noteValidation = [
     .trim()
     .notEmpty()
     .withMessage("Content is required")
+    .bail()
     .isLength({ min: 2 })
     .withMessage("A note must have at least two characters"),
 
   body("category_id")
     .notEmpty()
     .withMessage("category_id is required")
+    .bail()
     .isInt()
     .withMessage("Category ID must be an integer"),
 ];

@@ -1,64 +1,42 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router";
+import { getNoteById, updateNoteById } from "../services/notesService";
+import FormControl from "@mui/material/FormControl";
+import Box from "@mui/material/Box";
+import TextField from "@mui/material/TextField";
+import InputLabel from "@mui/material/InputLabel";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
 import { getAllCategories } from "../services/categoryService";
 import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
-import Box from "@mui/material/Box";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import Select from "@mui/material/Select";
-import { addNote } from "../services/notesService";
-import CircularProgress from "@mui/material/CircularProgress";
-import { useNavigate } from "react-router";
 
-function AddNote() {
+function UpdateNote() {
+  const noteId = useParams();
+  const id = Number(noteId.id);
+
   const [categories, setCategories] = React.useState([]);
-  const [category_id, setCategory_id] = React.useState("");
-  const [title, setTitle] = React.useState("");
-  const [content, setContent] = React.useState("");
-  const [loading, setLoading] = React.useState(false);
-  const [error, setError] = React.useState("");
+  const [note, setNote] = useState({});
+  const [category_id, setCategory_id] = useState("");
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
   const [errors, setErrors] = React.useState({
     title: "",
     content: "",
     category_id: "",
   });
+  const [loading, setLoading] = React.useState(false);
+
   const navigate = useNavigate();
+  console.log("CATEGORY ID: ", category_id);
+  const handleGetNoteById = async () => {
+    const data = await getNoteById(id);
 
-  const validateForm = () => {
-    const newErrors = {
-      title: "",
-      content: "",
-      category_id: "",
-    };
-
-    let isValid = true;
-
-    if (!title.trim()) {
-      newErrors.title = "Title is required";
-      isValid = false;
-    } else if (title.trim().length < 2) {
-      newErrors.title = "Title must have at least 2 characters";
-      isValid = false;
-    }
-
-    if (!content.trim()) {
-      newErrors.content = "Content is required";
-      isValid = false;
-    } else if (content.trim().length < 2) {
-      newErrors.content = "Content must have at least 2 characters";
-      isValid = false;
-    }
-
-    if (!category_id) {
-      newErrors.category_id = "Please select a category";
-      isValid = false;
-    }
-
-    setErrors(newErrors);
-
-    return isValid;
+    setTitle(data.title);
+    setContent(data.title);
+    setCategory_id(data.category_id);
+    setNote(data);
   };
+
   const handleChangeCategoryId = (event) => {
     setCategory_id(Number(event.target.value));
 
@@ -91,45 +69,14 @@ function AddNote() {
     setCategories(data);
   };
 
-  const handleAddNote = async () => {
-    if (!validateForm()) {
-      return;
-    }
-    try {
-      setLoading(true);
-      setError("");
-      await addNote(title, content, category_id);
+  const handleUpdateNoteById = async () => {
+    const data = await updateNoteById(title, content, category_id, id);
 
-      setCategory_id("");
-      setTitle("");
-      setContent("");
-      navigate("/notes");
-    } catch (error) {
-      console.error(error);
-
-      const serverErrors = error.response?.data?.errors;
-
-      if (serverErrors) {
-        const newErrors = {
-          title: "",
-          content: "",
-          category_id: "",
-        };
-
-        serverErrors.forEach((err) => {
-          newErrors[err.path] = err.msg;
-        });
-
-        setErrors(newErrors);
-      } else {
-        setError(error.response?.data?.message || "Failed to create note");
-      }
-    } finally {
-      setLoading(false);
-    }
+    navigate("/notes");
   };
 
   useEffect(() => {
+    handleGetNoteById();
     handleGetAllCategories();
   }, []);
 
@@ -189,7 +136,11 @@ function AddNote() {
             </FormControl>
           </Box>
         </div>
-        <Button disabled={loading} variant="outlined" onClick={handleAddNote}>
+        <Button
+          onClick={handleUpdateNoteById}
+          disabled={loading}
+          variant="outlined"
+        >
           {loading ? <CircularProgress /> : "SUBMIT"}
         </Button>
       </div>
@@ -197,4 +148,4 @@ function AddNote() {
   );
 }
 
-export default AddNote;
+export default UpdateNote;
