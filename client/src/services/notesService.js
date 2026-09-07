@@ -1,7 +1,12 @@
 import api from "./api";
 
-export const getAllNotes = async () => {
-  const response = await api.get("/notes");
+export const getAllNotes = async (page, limit) => {
+  const response = await api.get("/notes", {
+    params: {
+      page,
+      limit,
+    },
+  });
 
   return response.data;
 };
@@ -28,6 +33,12 @@ export const updateNoteById = async (title, content, category_id, id) => {
     content,
     category_id,
   });
+
+  return response.data;
+};
+
+export const deleteNoteById = async (id) => {
+  const response = await api.delete(`/notes/${id}`);
 
   return response.data;
 };

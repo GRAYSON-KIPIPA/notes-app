@@ -51,6 +51,12 @@ export default function MenuAppBar() {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Photos
           </Typography>
+          <Button
+            style={{ color: "white" }}
+            onClick={() => navigate("/add-note")}
+          >
+            ADD NOTE
+          </Button>{" "}
           <Button style={{ color: "white" }} onClick={handleLogout}>
             LOGOUT
           </Button>

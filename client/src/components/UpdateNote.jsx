@@ -9,13 +9,13 @@ import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import { getAllCategories } from "../services/categoryService";
 import Button from "@mui/material/Button";
+import CircularProgress from "@mui/material/CircularProgress";
 
 function UpdateNote() {
   const noteId = useParams();
   const id = Number(noteId.id);
 
   const [categories, setCategories] = React.useState([]);
-  const [note, setNote] = useState({});
   const [category_id, setCategory_id] = useState("");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -24,17 +24,51 @@ function UpdateNote() {
     content: "",
     category_id: "",
   });
+
   const [loading, setLoading] = React.useState(false);
 
   const navigate = useNavigate();
-  console.log("CATEGORY ID: ", category_id);
   const handleGetNoteById = async () => {
     const data = await getNoteById(id);
 
     setTitle(data.title);
-    setContent(data.title);
+    setContent(data.content);
     setCategory_id(data.category_id);
-    setNote(data);
+  };
+
+  const validateForm = () => {
+    const newErrors = {
+      title: "",
+      content: "",
+      category_id: "",
+    };
+
+    let isValid = true;
+
+    if (!title.trim()) {
+      newErrors.title = "Title is required";
+      isValid = false;
+    } else if (title.trim().length < 2) {
+      newErrors.title = "Title must have at least 2 characters";
+      isValid = false;
+    }
+
+    if (!content.trim()) {
+      newErrors.content = "Content is required";
+      isValid = false;
+    } else if (content.trim().length < 2) {
+      newErrors.content = "Content must have at least 2 characters";
+      isValid = false;
+    }
+
+    if (!category_id) {
+      newErrors.category_id = "Please select a category";
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+
+    return isValid;
   };
 
   const handleChangeCategoryId = (event) => {
@@ -70,9 +104,20 @@ function UpdateNote() {
   };
 
   const handleUpdateNoteById = async () => {
-    const data = await updateNoteById(title, content, category_id, id);
+    if (!validateForm()) {
+      return;
+    }
 
-    navigate("/notes");
+    try {
+      setLoading(true);
+      const data = await updateNoteById(title, content, category_id, id);
+
+      navigate("/notes");
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -82,7 +127,7 @@ function UpdateNote() {
 
   return (
     <div>
-      <h4>ADD NOTE</h4>
+      <h4>UPDATE NOTE</h4>
       <div style={{ margin: 10 }}>
         <div style={{ marginBottom: 20 }}>
           <TextField

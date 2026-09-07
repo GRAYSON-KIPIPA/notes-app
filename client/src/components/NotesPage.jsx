@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getAllNotes } from "../services/notesService";
+import { deleteNoteById, getAllNotes } from "../services/notesService";
 import Box from "@mui/material/Box";
 import { styled } from "@mui/material/styles";
 import Table from "@mui/material/Table";
@@ -11,6 +11,15 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useNavigate } from "react-router";
+import Alert from "@mui/material/Alert";
+import CheckIcon from "@mui/icons-material/Check";
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+import { set } from "../../../server/app";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -37,14 +46,32 @@ function NotesPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const [selectedNoteId, setSelectedNoteId] = useState(null);
+  const [open, setOpen] = React.useState(false);
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [totalNotes, setTotalNotes] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
-  const handleGetAllNote = async () => {
+  const handleClickOpen = (id) => {
+    setSelectedNoteId(id);
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    setSelectedNoteId(null);
+  };
+
+  const handleGetAllNotes = async () => {
     try {
       setLoading(true);
       setError("");
 
       const data = await getAllNotes();
       setNotes(data.notes);
+      setTotalNotes(data.totalNotes);
+      setTotalPages(data.totalPages);
     } catch (error) {
       console.error(error);
     } finally {
@@ -52,9 +79,20 @@ function NotesPage() {
     }
   };
 
+  const handleDeleteNoteById = async (id) => {
+    try {
+      await deleteNoteById(id);
+      handleClose();
+      setNotes((prevNotes) => prevNotes.filter((note) => note.id !== id));
+    } catch (error) {
+      console.error(error);
+      setError(error.response?.data?.message || "Failed to delete note");
+    }
+  };
+
   useEffect(() => {
-    handleGetAllNote();
-  }, []);
+    handleGetAllNotes();
+  }, [page]);
 
   const handleEditNote = (id) => {
     navigate(`/update-note/${id}`);
@@ -63,7 +101,48 @@ function NotesPage() {
   return (
     <div>
       <h4>NOTES</h4>
+
       <Box sx={{ display: "flex" }}>
+        <React.Fragment>
+          <Dialog
+            open={open}
+            onClose={handleClose}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+            role="alertdialog"
+          >
+            <DialogTitle id="alert-dialog-title">{""}</DialogTitle>
+            <DialogContent>
+              <DialogContentText
+                style={{ color: "red" }}
+                id="alert-dialog-description"
+              >
+                Are You sure want to delete a note?
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button
+                variant="outlined"
+                size="small"
+                style={{ color: "green" }}
+                onClick={handleClose}
+                autoFocus
+              >
+                Disagree
+              </Button>
+              <Button
+                size="small"
+                variant="outlined"
+                style={{ color: "red" }}
+                onClick={() => {
+                  handleDeleteNoteById(selectedNoteId);
+                }}
+              >
+                Agree
+              </Button>
+            </DialogActions>
+          </Dialog>
+        </React.Fragment>
         <div>{loading && <CircularProgress />}</div>
         <div>{error && error}</div>
         <div>
@@ -104,15 +183,36 @@ function NotesPage() {
                     {row.category}
                   </StyledTableCell>
                   <StyledTableCell align="center">{row.owner}</StyledTableCell>
+
                   <StyledTableCell align="center">
-                    <button
-                      onClick={() => handleEditNote(row.id)}
-                      size="small"
-                      variant="outlined"
-                      style={{ backgroundColor: "lightpink", borderRadius: 6 }}
-                    >
-                      edit
-                    </button>
+                    <div style={{ display: "flex" }}>
+                      <div>
+                        <button
+                          onClick={() => handleEditNote(row.id)}
+                          size="small"
+                          variant="outlined"
+                          style={{
+                            backgroundColor: "lightpink",
+                            borderRadius: 6,
+                          }}
+                        >
+                          edit
+                        </button>
+                      </div>
+                      <div>
+                        <button
+                          onClick={() => handleClickOpen(row.id)}
+                          size="small"
+                          variant="outlined"
+                          style={{
+                            backgroundColor: "red",
+                            borderRadius: 6,
+                          }}
+                        >
+                          delete
+                        </button>
+                      </div>
+                    </div>
                   </StyledTableCell>
                 </StyledTableRow>
               ))}
