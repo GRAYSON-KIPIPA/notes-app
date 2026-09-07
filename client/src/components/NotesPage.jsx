@@ -11,15 +11,14 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useNavigate } from "react-router";
-import Alert from "@mui/material/Alert";
-import CheckIcon from "@mui/icons-material/Check";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-import { set } from "../../../server/app";
+import Pagination from "@mui/material/Pagination";
+import Stack from "@mui/material/Stack";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -53,6 +52,7 @@ function NotesPage() {
   const [totalNotes, setTotalNotes] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
 
+  console.log("PAGE: ", page);
   const handleClickOpen = (id) => {
     setSelectedNoteId(id);
     setOpen(true);
@@ -68,7 +68,7 @@ function NotesPage() {
       setLoading(true);
       setError("");
 
-      const data = await getAllNotes();
+      const data = await getAllNotes(page, limit);
       setNotes(data.notes);
       setTotalNotes(data.totalNotes);
       setTotalPages(data.totalPages);
@@ -83,7 +83,7 @@ function NotesPage() {
     try {
       await deleteNoteById(id);
       handleClose();
-      setNotes((prevNotes) => prevNotes.filter((note) => note.id !== id));
+      await handleGetAllNotes();
     } catch (error) {
       console.error(error);
       setError(error.response?.data?.message || "Failed to delete note");
@@ -220,6 +220,16 @@ function NotesPage() {
           </Table>
         </TableContainer>
       </Box>
+      <div>
+        <Stack spacing={2}>
+          <Pagination
+            onChange={(e, p) => setPage(p)}
+            count={totalPages}
+            variant="outlined"
+            shape="rounded"
+          />
+        </Stack>
+      </div>
     </div>
   );
 }
