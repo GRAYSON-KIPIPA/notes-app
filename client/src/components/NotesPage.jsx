@@ -19,6 +19,12 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import FormHelperText from "@mui/material/FormHelperText";
+import FormControl from "@mui/material/FormControl";
+import Select from "@mui/material/Select";
+import { getAllCategories } from "../services/categoryService";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -51,8 +57,11 @@ function NotesPage() {
   const [limit] = useState(10);
   const [totalNotes, setTotalNotes] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
+  const [search, setSearch] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [categories, setCategories] = useState([]);
+  const [category_id, setCategory_id] = useState("");
 
-  console.log("PAGE: ", page);
   const handleClickOpen = (id) => {
     setSelectedNoteId(id);
     setOpen(true);
@@ -68,7 +77,7 @@ function NotesPage() {
       setLoading(true);
       setError("");
 
-      const data = await getAllNotes(page, limit);
+      const data = await getAllNotes(page, limit, search, category_id);
       setNotes(data.notes);
       setTotalNotes(data.totalNotes);
       setTotalPages(data.totalPages);
@@ -90,9 +99,27 @@ function NotesPage() {
     }
   };
 
+  //Fetch all categories
+  const handleGetAllCategories = async () => {
+    const data = await getAllCategories();
+    setCategories(data);
+  };
+
+  //Select CategoryId
+  const handleSelectCategory = (e) => {
+    setCategory_id(e.target.value);
+    setPage(1);
+  };
+
+  //Function for searching
+  const handleSearch = () => {
+    setPage(1);
+    setSearch(searchInput);
+  };
   useEffect(() => {
     handleGetAllNotes();
-  }, [page]);
+    handleGetAllCategories();
+  }, [page, search, category_id]);
 
   const handleEditNote = (id) => {
     navigate(`/update-note/${id}`);
@@ -151,6 +178,46 @@ function NotesPage() {
           )}
         </div>
       </Box>
+      <div style={{ marginBottom: 20 }}>
+        <input
+          type="text"
+          placeholder="Search notes..."
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+        />
+
+        <button onClick={handleSearch}>Search</button>
+        <button
+          style={{ marginLeft: 8 }}
+          onClick={() => {
+            setSearchInput("");
+            setSearch("");
+            setPage(1);
+          }}
+        >
+          Clear
+        </button>
+      </div>
+      <div>
+        <FormControl sx={{ m: 1, minWidth: 120 }}>
+          <FormHelperText>Filter by category name</FormHelperText>
+          <Select
+            size="small"
+            value={category_id}
+            onChange={handleSelectCategory}
+            displayEmpty
+            inputProps={{ "aria-label": "Age" }}
+          >
+            <MenuItem value="">All categories</MenuItem>
+
+            {categories.map((category) => (
+              <MenuItem key={category.id} value={category.id}>
+                {category.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </div>
       <Box
         sx={{
           flexGrow: 1,

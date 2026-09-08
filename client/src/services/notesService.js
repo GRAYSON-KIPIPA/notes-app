@@ -1,10 +1,12 @@
 import api from "./api";
 
-export const getAllNotes = async (page, limit) => {
+export const getAllNotes = async (page, limit, search, category_id) => {
   const response = await api.get("/notes", {
     params: {
       page,
       limit,
+      search,
+      category_id,
     },
   });
 
