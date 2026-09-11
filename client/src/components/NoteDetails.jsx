@@ -3,7 +3,6 @@ import { deleteNoteById, getNoteById } from "../services/notesService";
 import { useParams } from "react-router";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import CardActionArea from "@mui/material/CardActionArea";
@@ -30,6 +29,7 @@ function NoteDetails() {
 
   const handleDeleteNoteById = async () => {
     try {
+      window.confirm(`Are you sure you want to delete ${note.title} ?`);
       await deleteNoteById(note.id);
       setSuccess(true);
     } catch (error) {

@@ -41,40 +41,66 @@ function LoginPage() {
   };
 
   return (
-    <div>
-      <h3>LOGIN PAGE</h3>
-
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
       {error && <p style={{ color: "red" }}>{error}</p>}
-      <Box
-        component="section"
-        sx={{ p: 2, border: "1px dashed grey", width: "30%", borderRadius: 5 }}
-      >
-        <h4>Login Form</h4>
-        <div>
-          <div style={{ marginBottom: 10 }}>
-            <TextField
-              id="outlined-basic"
-              label="Email"
-              size="small"
-              variant="outlined"
-              onChange={handleChangeEmail}
-            />
+      <div>
+        <Box
+          component="section"
+          sx={{
+            border: "1px solid grey",
+            width: "30%",
+            borderRadius: 5,
+            borderColor: "blue",
+            backgroundColor: `rgb(240, 240, 240)`,
+            padding: "24px",
+            minWidth: 500,
+            marginTop: "100px",
+          }}
+        >
+          <div>
+            <h2 style={{ textAlign: "center" }}>Login Form</h2>
+            <div>
+              <div style={{ marginBottom: "32px" }}>
+                <TextField
+                  style={{}}
+                  fullWidth
+                  id="outlined-basic"
+                  label="Email"
+                  size="small"
+                  variant="outlined"
+                  onChange={handleChangeEmail}
+                />
+              </div>
+              <div style={{ marginBottom: "24px" }}>
+                <TextField
+                  fullWidth
+                  id="outlined-basic"
+                  label="Password"
+                  type="password"
+                  size="small"
+                  variant="outlined"
+                  onChange={handleChangePassword}
+                />
+              </div>
+            </div>
+            <div style={{ margin: 5 }}>
+              <Button
+                disabled={loading}
+                variant="outlined"
+                onClick={handleLogin}
+              >
+                {loading ? <CircularProgress /> : "Login"}
+              </Button>
+            </div>
           </div>
-          <TextField
-            id="outlined-basic"
-            label="Password"
-            type="password"
-            size="small"
-            variant="outlined"
-            onChange={handleChangePassword}
-          />
-        </div>
-        <div style={{ margin: 5 }}>
-          <Button disabled={loading} variant="outlined" onClick={handleLogin}>
-            {loading ? <CircularProgress /> : "Login"}
-          </Button>
-        </div>
-      </Box>
+        </Box>
+      </div>
     </div>
   );
 }

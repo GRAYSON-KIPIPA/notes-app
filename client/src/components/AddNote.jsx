@@ -136,62 +136,100 @@ function AddNote() {
   return (
     <div>
       <h4>ADD NOTE</h4>
-      <div style={{ margin: 10 }}>
-        <div style={{ marginBottom: 20 }}>
-          <TextField
-            onChange={handleChangeTitle}
-            size="small"
-            id=""
-            value={title}
-            required
-            error={Boolean(errors.title)}
-            helperText={errors.title}
-            label="Title"
-          />
+      <div
+        style={{
+          margin: 10,
+          minWidth: "100%",
+          display: "flex",
+          justifyContent: "center",
+        }}
+      >
+        <div
+          style={{
+            border: "solid",
+            borderRadius: 10,
+            borderColor: "aqua",
+            padding: 64,
+          }}
+        >
+          <div style={{ marginBottom: 20, minWidth: 500 }}>
+            <TextField
+              fullWidth
+              onChange={handleChangeTitle}
+              size="small"
+              id=""
+              value={title}
+              required
+              error={Boolean(errors.title)}
+              helperText={errors.title}
+              label="Title"
+            />
+          </div>
+          <div>
+            <TextField
+              fullWidth
+              onChange={handleChangeContent}
+              size="small"
+              id=""
+              value={content}
+              required
+              error={Boolean(errors.content)}
+              helperText={errors.content}
+              label="Content"
+            />
+          </div>
+          <div>
+            <Box
+              sx={{
+                maxWidth: 6000,
+                minWidth: 500,
+                marginTop: 2,
+                size: "small",
+              }}
+            >
+              <FormControl fullWidth error={Boolean(errors.category_id)}>
+                <InputLabel size="small" id="demo-simple-select-label">
+                  Select Category
+                </InputLabel>
+                <Select
+                  fullWidth
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={category_id}
+                  label="Category"
+                  onChange={handleChangeCategoryId}
+                  required
+                >
+                  {categories.map((category) => (
+                    <MenuItem key={category.id} value={category.id}>
+                      {category.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+                {errors.category_id && (
+                  <p style={{ color: "red", fontSize: 12, marginLeft: 14 }}>
+                    {errors.category_id}
+                  </p>
+                )}
+              </FormControl>
+            </Box>
+          </div>
+          <div style={{ marginTop: 10 }}>
+            <Button
+              style={{
+                backgroundColor: "aqua",
+                color: "indigo",
+                fontSize: "16px",
+              }}
+              size="xl"
+              disabled={loading}
+              variant="outlined"
+              onClick={handleAddNote}
+            >
+              {loading ? <CircularProgress /> : "SUBMIT"}
+            </Button>
+          </div>
         </div>
-        <div>
-          <TextField
-            onChange={handleChangeContent}
-            size="small"
-            id=""
-            value={content}
-            required
-            error={Boolean(errors.content)}
-            helperText={errors.content}
-            label="Content"
-          />
-        </div>
-        <div>
-          <Box sx={{ maxWidth: 220, marginTop: 2, size: "small" }}>
-            <FormControl fullWidth error={Boolean(errors.category_id)}>
-              <InputLabel size="small" id="demo-simple-select-label">
-                Select Category
-              </InputLabel>
-              <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                value={category_id}
-                label="Category"
-                onChange={handleChangeCategoryId}
-                required
-              >
-                {categories.map((category) => (
-                  <MenuItem key={category.id} value={category.id}>
-                    {category.name}
-                  </MenuItem>
-                ))}
-              </Select>
-              {errors.category_id && (
-                <p style={{ color: "red", fontSize: 12, marginLeft: 14 }}>
-                  {errors.category_id}
-                </p>
-              )}
-            </FormControl>
-          </Box>
-        </div>
-        <Button disabled={loading} variant="outlined" onClick={handleAddNote}>
-          {loading ? <CircularProgress /> : "SUBMIT"}
-        </Button>
       </div>
     </div>
   );
