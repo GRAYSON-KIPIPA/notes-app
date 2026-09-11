@@ -19,10 +19,10 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";
-import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormHelperText from "@mui/material/FormHelperText";
 import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
 import Select from "@mui/material/Select";
 import { getAllCategories } from "../services/categoryService";
 
@@ -46,21 +46,23 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 function NotesPage() {
+  //States
   const [notes, setNotes] = useState([]);
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const [selectedNoteId, setSelectedNoteId] = useState(null);
   const [open, setOpen] = React.useState(false);
   const [page, setPage] = useState(1);
-  const [limit] = useState(10);
+  const [limit] = useState(3);
   const [totalNotes, setTotalNotes] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [search, setSearch] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [categories, setCategories] = useState([]);
   const [category_id, setCategory_id] = useState("");
+  const [sort, setSort] = useState("id");
+  const [order, setOrder] = useState("asc");
 
   const handleClickOpen = (id) => {
     setSelectedNoteId(id);
@@ -77,7 +79,14 @@ function NotesPage() {
       setLoading(true);
       setError("");
 
-      const data = await getAllNotes(page, limit, search, category_id);
+      const data = await getAllNotes(
+        page,
+        limit,
+        search,
+        category_id,
+        sort,
+        order,
+      );
       setNotes(data.notes);
       setTotalNotes(data.totalNotes);
       setTotalPages(data.totalPages);
@@ -116,14 +125,19 @@ function NotesPage() {
     setPage(1);
     setSearch(searchInput);
   };
-  useEffect(() => {
-    handleGetAllNotes();
-    handleGetAllCategories();
-  }, [page, search, category_id]);
 
   const handleEditNote = (id) => {
     navigate(`/update-note/${id}`);
   };
+
+  const handleViewNote = (id) => {
+    navigate(`/${id}`);
+  };
+
+  useEffect(() => {
+    handleGetAllNotes();
+    handleGetAllCategories();
+  }, [page, search, category_id, sort, order]);
 
   return (
     <div>
@@ -198,25 +212,65 @@ function NotesPage() {
           Clear
         </button>
       </div>
-      <div>
-        <FormControl sx={{ m: 1, minWidth: 120 }}>
-          <FormHelperText>Filter by category name</FormHelperText>
-          <Select
-            size="small"
-            value={category_id}
-            onChange={handleSelectCategory}
-            displayEmpty
-            inputProps={{ "aria-label": "Age" }}
-          >
-            <MenuItem value="">All categories</MenuItem>
+      <div style={{ display: "flex" }}>
+        <div>
+          <FormControl sx={{ m: 1, minWidth: 120 }}>
+            <FormHelperText>Filter by category name</FormHelperText>
+            <Select
+              size="small"
+              value={category_id}
+              onChange={handleSelectCategory}
+              displayEmpty
+              inputProps={{ "aria-label": "Age" }}
+            >
+              <MenuItem value="">All categories</MenuItem>
 
-            {categories.map((category) => (
-              <MenuItem key={category.id} value={category.id}>
-                {category.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+              {categories.map((category) => (
+                <MenuItem key={category.id} value={category.id}>
+                  {category.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </div>
+
+        <div style={{ marginTop: 29 }}>
+          <FormControl sx={{ minWidth: 150 }}>
+            <InputLabel size="small">Sort By</InputLabel>
+
+            <Select
+              size="small"
+              value={sort}
+              label="Sort By"
+              onChange={(e) => {
+                setSort(e.target.value);
+                setPage(1);
+              }}
+            >
+              <MenuItem value="id">ID</MenuItem>
+              <MenuItem value="title">Title</MenuItem>
+            </Select>
+          </FormControl>
+        </div>
+
+        <div style={{ marginTop: 29, marginLeft: 10 }}>
+          <FormControl sx={{ minWidth: 150 }}>
+            <InputLabel size="small">Order By</InputLabel>
+
+            <Select
+              size="small"
+              value={order}
+              label="Order By"
+              onChange={(e) => {
+                setOrder(e.target.value);
+                setPage(1);
+              }}
+            >
+              <MenuItem value="asc">ASC</MenuItem>
+              <MenuItem value="desc">DESC</MenuItem>
+            </Select>
+          </FormControl>
+        </div>
       </div>
       <Box
         sx={{
@@ -277,6 +331,19 @@ function NotesPage() {
                           }}
                         >
                           delete
+                        </button>
+                      </div>
+                      <div>
+                        <button
+                          onClick={() => handleViewNote(row.id)}
+                          size="small"
+                          variant="outlined"
+                          style={{
+                            backgroundColor: "lightblue",
+                            borderRadius: 6,
+                          }}
+                        >
+                          view
                         </button>
                       </div>
                     </div>

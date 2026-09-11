@@ -7,6 +7,7 @@ import MainLayout from "./components/MainLayout";
 import ProfilePage from "./components/ProfilePage";
 import AddNote from "./components/AddNote";
 import UpdateNote from "./components/UpdateNote";
+import NoteDetails from "./components/NoteDetails";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
               <Route path="/notes" element={<NotesPage />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/add-note/" element={<AddNote />} />
+              <Route path="/:id" element={<NoteDetails />} />
               <Route path="/update-note/:id" element={<UpdateNote />} />
             </Route>
           </Routes>
