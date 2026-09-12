@@ -24,6 +24,7 @@ function UpdateNote() {
     content: "",
     category_id: "",
   });
+  const [error, setError] = useState("");
 
   const [loading, setLoading] = React.useState(false);
 
@@ -110,11 +111,13 @@ function UpdateNote() {
 
     try {
       setLoading(true);
+      setError("");
       const data = await updateNoteById(title, content, category_id, id);
 
       navigate("/notes");
     } catch (error) {
       console.error(error);
+      setError(error.response?.data?.message || "Failed to update note");
     } finally {
       setLoading(false);
     }
@@ -130,6 +133,7 @@ function UpdateNote() {
       <h4>UPDATE NOTE</h4>
       <div style={{ margin: 10 }}>
         <div style={{ marginBottom: 20 }}>
+          <div>{error && <p>{error}</p>}</div>
           <TextField
             onChange={handleChangeTitle}
             size="small"

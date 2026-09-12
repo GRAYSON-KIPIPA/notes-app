@@ -25,6 +25,7 @@ import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import Select from "@mui/material/Select";
 import { getAllCategories } from "../services/categoryService";
+import Alert from "@mui/material/Alert";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -63,6 +64,7 @@ function NotesPage() {
   const [category_id, setCategory_id] = useState("");
   const [sort, setSort] = useState("id");
   const [order, setOrder] = useState("asc");
+  const [success, setSuccess] = useState(false);
 
   const handleClickOpen = (id) => {
     setSelectedNoteId(id);
@@ -100,11 +102,16 @@ function NotesPage() {
   const handleDeleteNoteById = async (id) => {
     try {
       await deleteNoteById(id);
+      setSuccess(true);
       handleClose();
       await handleGetAllNotes();
     } catch (error) {
       console.error(error);
+      setSuccess(false);
+
       setError(error.response?.data?.message || "Failed to delete note");
+    } finally {
+      setSuccess(false);
     }
   };
 
@@ -139,6 +146,13 @@ function NotesPage() {
     handleGetAllCategories();
   }, [page, search, category_id, sort, order]);
 
+  if (success) {
+    return (
+      <div>
+        <Alert>Note deleted successfully</Alert>
+      </div>
+    );
+  }
   return (
     <div>
       <h4>NOTES</h4>

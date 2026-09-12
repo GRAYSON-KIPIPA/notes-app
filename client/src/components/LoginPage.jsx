@@ -48,7 +48,6 @@ function LoginPage() {
         alignItems: "center",
       }}
     >
-      {error && <p style={{ color: "red" }}>{error}</p>}
       <div>
         <Box
           component="section"
@@ -65,6 +64,8 @@ function LoginPage() {
         >
           <div>
             <h2 style={{ textAlign: "center" }}>Login Form</h2>
+            {error && <p style={{ color: "red" }}>{error}</p>}
+
             <div>
               <div style={{ marginBottom: "32px" }}>
                 <TextField
@@ -95,7 +96,7 @@ function LoginPage() {
                 variant="outlined"
                 onClick={handleLogin}
               >
-                {loading ? <CircularProgress /> : "Login"}
+                {loading ? <CircularProgress size={20} /> : "Login"}
               </Button>
             </div>
           </div>

@@ -10,10 +10,14 @@ import CardActions from "@mui/material/CardActions";
 import Divider from "@mui/material/Divider";
 import { useNavigate } from "react-router";
 import Alert from "@mui/material/Alert";
+import CircularProgress from "@mui/material/CircularProgress";
 
 function NoteDetails() {
   const [note, setNote] = useState({});
   const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [error, setError] = useState("");
 
   const navigate = useNavigate();
   const noteId = useParams();
@@ -22,27 +26,46 @@ function NoteDetails() {
   console.log("NOTE: ", note);
 
   const handleGetNoteById = async () => {
-    const data = await getNoteById(id);
+    try {
+      setLoading(true);
+      setError("");
+      const data = await getNoteById(id);
 
-    setNote(data);
+      setNote(data);
+    } catch (error) {
+      console.error(error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDeleteNoteById = async () => {
     try {
-      window.confirm(`Are you sure you want to delete ${note.title} ?`);
+      const confirmed = window.confirm(
+        `Are you sure you want to delete ${note.title} ?`,
+      );
+      if (!confirmed) {
+        return;
+      }
+
+      setDeleting(true);
+      setError("");
+
       await deleteNoteById(note.id);
       setSuccess(true);
     } catch (error) {
       console.error(error);
+      setError(error.response?.data?.message || "Failed to update note");
       setSuccess(false);
+    } finally {
+      setDeleting(false);
     }
   };
 
   useEffect(() => {
     handleGetNoteById();
   }, [id]);
-
-  console.log("SUCCESS", success);
 
   if (success) {
     return (
@@ -61,6 +84,8 @@ function NoteDetails() {
         minHeight: "80vh",
       }}
     >
+      <div>{loading && <CircularProgress />}</div>
+      <div>{error && <p>{error}</p>}</div>
       <div>
         <h3 style={{ color: "blue" }}>NOTE DETAILS</h3>
         <Card sx={{ maxWidth: 600, minWidth: 500, marginTop: 2 }}>
@@ -147,7 +172,7 @@ function NoteDetails() {
                 onClick={() => navigate(`/update-note/${note.id}`)}
                 variant="outlined"
                 size="small"
-                color="yellow"
+                color="warning"
               >
                 UPDATE
               </Button>
@@ -156,8 +181,9 @@ function NoteDetails() {
                 variant="outlined"
                 size="small"
                 color="error"
+                disabled={deleting}
               >
-                DELETE
+                {deleting ? <CircularProgress size={20} /> : "DELETE"}
               </Button>
             </div>
           </CardActions>
