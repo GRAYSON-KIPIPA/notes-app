@@ -1,5 +1,3 @@
-import { useState } from "react";
-import API_URL from "./services/api";
 import LoginPage from "./components/LoginPage";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import NotesPage from "./components/NotesPage";
@@ -8,6 +6,7 @@ import ProfilePage from "./components/ProfilePage";
 import AddNote from "./components/AddNote";
 import UpdateNote from "./components/UpdateNote";
 import NoteDetails from "./components/NoteDetails";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
@@ -16,12 +15,14 @@ function App() {
         <div>
           <Routes>
             <Route path="/login" element={<LoginPage />} />
-            <Route element={<MainLayout />}>
-              <Route path="/notes" element={<NotesPage />} />
-              <Route path="/profile" element={<ProfilePage />} />
-              <Route path="/add-note/" element={<AddNote />} />
-              <Route path="/:id" element={<NoteDetails />} />
-              <Route path="/update-note/:id" element={<UpdateNote />} />
+            <Route element={<ProtectedRoute />}>
+              <Route element={<MainLayout />}>
+                <Route path="/notes" element={<NotesPage />} />
+                <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/add-note/" element={<AddNote />} />
+                <Route path="/:id" element={<NoteDetails />} />
+                <Route path="/update-note/:id" element={<UpdateNote />} />
+              </Route>
             </Route>
           </Routes>
         </div>
