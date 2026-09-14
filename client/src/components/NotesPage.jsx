@@ -26,6 +26,9 @@ import InputLabel from "@mui/material/InputLabel";
 import Select from "@mui/material/Select";
 import { getAllCategories } from "../services/categoryService";
 import Alert from "@mui/material/Alert";
+import { useContext } from "react";
+import AuthContext from "../context/AuthContext";
+import Typography from "@mui/material/Typography";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -66,6 +69,7 @@ function NotesPage() {
   const [order, setOrder] = useState("asc");
   const [success, setSuccess] = useState(false);
 
+  const { user } = useContext(AuthContext);
   const handleClickOpen = (id) => {
     setSelectedNoteId(id);
     setOpen(true);
@@ -155,6 +159,9 @@ function NotesPage() {
   }
   return (
     <div>
+      <div style={{ display: "flex", justifyContent: "end", margin: 20 }}>
+        <Typography>Welcome {user?.name}</Typography>
+      </div>
       <h4>NOTES</h4>
 
       <Box sx={{ display: "flex" }}>

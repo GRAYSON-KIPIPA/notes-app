@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import { loginUser } from "../services/authService";
 import CircularProgress from "@mui/material/CircularProgress";
+import AuthContext from "../context/AuthContext";
 
 function LoginPage() {
   const [email, setEmail] = useState("");
@@ -13,6 +14,8 @@ function LoginPage() {
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
+
+  const { login } = useContext(AuthContext);
 
   const handleChangeEmail = (e) => {
     setEmail(e.target.value);
@@ -26,7 +29,7 @@ function LoginPage() {
       setLoading(true);
       setError("");
       const data = await loginUser(email, password);
-      localStorage.setItem("token", data.token);
+      login(data.token);
 
       navigate("/notes");
     } catch (error) {

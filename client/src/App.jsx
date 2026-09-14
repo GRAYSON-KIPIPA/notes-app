@@ -7,26 +7,29 @@ import AddNote from "./components/AddNote";
 import UpdateNote from "./components/UpdateNote";
 import NoteDetails from "./components/NoteDetails";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { AuthProvider } from "./context/AuthContext";
 
 function App() {
   return (
     <>
-      <Router>
-        <div>
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route element={<ProtectedRoute />}>
-              <Route element={<MainLayout />}>
-                <Route path="/notes" element={<NotesPage />} />
-                <Route path="/profile" element={<ProfilePage />} />
-                <Route path="/add-note/" element={<AddNote />} />
-                <Route path="/:id" element={<NoteDetails />} />
-                <Route path="/update-note/:id" element={<UpdateNote />} />
+      <AuthProvider>
+        <Router>
+          <div>
+            <Routes>
+              <Route path="/login" element={<LoginPage />} />
+              <Route element={<ProtectedRoute />}>
+                <Route element={<MainLayout />}>
+                  <Route path="/notes" element={<NotesPage />} />
+                  <Route path="/profile" element={<ProfilePage />} />
+                  <Route path="/add-note/" element={<AddNote />} />
+                  <Route path="/:id" element={<NoteDetails />} />
+                  <Route path="/update-note/:id" element={<UpdateNote />} />
+                </Route>
               </Route>
-            </Route>
-          </Routes>
-        </div>
-      </Router>
+            </Routes>
+          </div>
+        </Router>
+      </AuthProvider>
     </>
   );
 }
