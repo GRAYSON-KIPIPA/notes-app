@@ -39,7 +39,7 @@ const createCategory = async (req, res, next) => {
 
     const result = await pool.query(
       "INSERT INTO categories(name) values($1) RETURNING *",
-      [name]
+      [name],
     );
     const category = result.rows[0];
     res.status(201).json({
@@ -57,7 +57,7 @@ const deleteCategory = async (req, res, next) => {
   try {
     const result = await pool.query(
       "DELETE FROM categories WHERE id=$1 RETURNING *",
-      [id]
+      [id],
     );
 
     if (result.rows.length === 0) {
@@ -80,7 +80,7 @@ const updateCategory = async (req, res, next) => {
 
     const result = await pool.query(
       `UPDATE categories SET name=$1 WHERE id=$2 RETURNING *`,
-      [name, id]
+      [name, id],
     );
 
     // if (result.rows.length === 0) {
@@ -93,7 +93,6 @@ const updateCategory = async (req, res, next) => {
       throw new AppError("Category not found", 404);
     }
     const category = result.rows[0];
-    console.log("UPDATED: ", result.rows[0]);
     res.status(200).json({
       message: "Category updated successfully",
       category,

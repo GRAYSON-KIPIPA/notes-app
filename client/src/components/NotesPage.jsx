@@ -29,6 +29,7 @@ import Alert from "@mui/material/Alert";
 import { useContext } from "react";
 import AuthContext from "../context/AuthContext";
 import Typography from "@mui/material/Typography";
+import TextField from "@mui/material/TextField";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -158,232 +159,252 @@ function NotesPage() {
     );
   }
   return (
-    <div>
-      <div style={{ display: "flex", justifyContent: "end", margin: 20 }}>
-        <Typography>Welcome {user?.name}</Typography>
-      </div>
-      <h4>NOTES</h4>
+    <div style={{ marginTop: 40 }}>
+      <div style={{ marginLeft: 220 }}>
+        <div style={{ display: "flex" }}>
+          <Box sx={{ display: "flex" }}>
+            <React.Fragment>
+              <Dialog
+                open={open}
+                onClose={handleClose}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+                role="alertdialog"
+              >
+                <DialogTitle id="alert-dialog-title">{""}</DialogTitle>
+                <DialogContent>
+                  <DialogContentText
+                    style={{ color: "red" }}
+                    id="alert-dialog-description"
+                  >
+                    Are You sure want to delete a note?
+                  </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    style={{ color: "green" }}
+                    onClick={handleClose}
+                    autoFocus
+                  >
+                    Disagree
+                  </Button>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    style={{ color: "red" }}
+                    onClick={() => {
+                      handleDeleteNoteById(selectedNoteId);
+                    }}
+                  >
+                    Agree
+                  </Button>
+                </DialogActions>
+              </Dialog>
+            </React.Fragment>
+            <div>{loading && <CircularProgress />}</div>
+            <div>{error && error}</div>
+            <div>
+              {!loading && !error && notes.length === 0 && (
+                <p>You don't have any notes yet.</p>
+              )}
+            </div>
+          </Box>
+          <div style={{ marginBottom: 20 }}>
+            <TextField
+              size="small"
+              type="text"
+              placeholder="Search notes..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+            />
 
-      <Box sx={{ display: "flex" }}>
-        <React.Fragment>
-          <Dialog
-            open={open}
-            onClose={handleClose}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-            role="alertdialog"
-          >
-            <DialogTitle id="alert-dialog-title">{""}</DialogTitle>
-            <DialogContent>
-              <DialogContentText
-                style={{ color: "red" }}
-                id="alert-dialog-description"
-              >
-                Are You sure want to delete a note?
-              </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-              <Button
-                variant="outlined"
-                size="small"
-                style={{ color: "green" }}
-                onClick={handleClose}
-                autoFocus
-              >
-                Disagree
-              </Button>
-              <Button
-                size="small"
-                variant="outlined"
-                style={{ color: "red" }}
-                onClick={() => {
-                  handleDeleteNoteById(selectedNoteId);
+            <Button
+              size="small"
+              variant="outlined"
+              style={{ margin: 2 }}
+              onClick={handleSearch}
+            >
+              Search
+            </Button>
+            <Button
+              variant="outlined"
+              size="small"
+              style={{ marginLeft: 8 }}
+              onClick={() => {
+                setSearchInput("");
+                setSearch("");
+                setPage(1);
+              }}
+            >
+              Clear
+            </Button>
+          </div>
+          <div style={{ display: "flex" }}>
+            <div>
+              <FormControl
+                sx={{
+                  marginLeft: 2,
+                  marginTop: -3,
+                  marginRight: 2,
+                  minWidth: 120,
                 }}
               >
-                Agree
-              </Button>
-            </DialogActions>
-          </Dialog>
-        </React.Fragment>
-        <div>{loading && <CircularProgress />}</div>
-        <div>{error && error}</div>
-        <div>
-          {!loading && !error && notes.length === 0 && (
-            <p>You don't have any notes yet.</p>
-          )}
-        </div>
-      </Box>
-      <div style={{ marginBottom: 20 }}>
-        <input
-          type="text"
-          placeholder="Search notes..."
-          value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
-        />
+                <FormHelperText>Filter by category name</FormHelperText>
+                <Select
+                  size="small"
+                  value={category_id}
+                  label="Filter By Category name"
+                  onChange={handleSelectCategory}
+                  displayEmpty
+                  inputProps={{ "aria-label": "Age" }}
+                >
+                  <MenuItem value="">All categories</MenuItem>
 
-        <button onClick={handleSearch}>Search</button>
-        <button
-          style={{ marginLeft: 8 }}
-          onClick={() => {
-            setSearchInput("");
-            setSearch("");
-            setPage(1);
+                  {categories.map((category) => (
+                    <MenuItem key={category.id} value={category.id}>
+                      {category.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </div>
+
+            <div style={{}}>
+              <FormControl sx={{ minWidth: 150 }}>
+                <InputLabel size="small">Sort By</InputLabel>
+
+                <Select
+                  size="small"
+                  value={sort}
+                  label="Sort By"
+                  onChange={(e) => {
+                    setSort(e.target.value);
+                    setPage(1);
+                  }}
+                >
+                  <MenuItem value="id">ID</MenuItem>
+                  <MenuItem value="title">Title</MenuItem>
+                </Select>
+              </FormControl>
+            </div>
+            <div style={{ marginLeft: 10 }}>
+              <FormControl sx={{ minWidth: 150 }}>
+                <InputLabel size="small">Order By</InputLabel>
+
+                <Select
+                  size="small"
+                  value={order}
+                  label="Order By"
+                  onChange={(e) => {
+                    setOrder(e.target.value);
+                    setPage(1);
+                  }}
+                >
+                  <MenuItem value="asc">ASC</MenuItem>
+                  <MenuItem value="desc">DESC</MenuItem>
+                </Select>
+              </FormControl>
+            </div>
+          </div>
+        </div>
+        <Box
+          sx={{
+            flexGrow: 1,
+            maxWidth: 752,
           }}
         >
-          Clear
-        </button>
-      </div>
-      <div style={{ display: "flex" }}>
+          <TableContainer component={Paper}>
+            <Table sx={{ minWidth: 700 }} aria-label="customized table">
+              <TableHead>
+                <TableRow>
+                  <StyledTableCell align="center">S/N</StyledTableCell>
+                  <StyledTableCell align="center">Title</StyledTableCell>
+                  <StyledTableCell align="center">Content</StyledTableCell>
+                  <StyledTableCell align="center">Category</StyledTableCell>
+                  <StyledTableCell align="center">Owner</StyledTableCell>
+                  <StyledTableCell align="center">Actions</StyledTableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {notes.map((row, index) => (
+                  <StyledTableRow key={row.id}>
+                    <StyledTableCell align="center">
+                      {index + 1}
+                    </StyledTableCell>
+                    <StyledTableCell align="center" component="th" scope="row">
+                      {row.title}
+                    </StyledTableCell>
+                    <StyledTableCell align="center">
+                      {row.content}
+                    </StyledTableCell>
+                    <StyledTableCell align="center">
+                      {row.category}
+                    </StyledTableCell>
+                    <StyledTableCell align="center">
+                      {row.owner_email}
+                    </StyledTableCell>
+
+                    <StyledTableCell align="center">
+                      <div style={{ display: "flex" }}>
+                        <div>
+                          <button
+                            onClick={() => handleEditNote(row.id)}
+                            size="small"
+                            variant="outlined"
+                            style={{
+                              backgroundColor: "lightpink",
+                              borderRadius: 6,
+                            }}
+                          >
+                            edit
+                          </button>
+                        </div>
+                        <div>
+                          <button
+                            onClick={() => handleClickOpen(row.id)}
+                            size="small"
+                            variant="outlined"
+                            style={{
+                              backgroundColor: "red",
+                              borderRadius: 6,
+                            }}
+                          >
+                            delete
+                          </button>
+                        </div>
+                        <div>
+                          <button
+                            onClick={() => handleViewNote(row.id)}
+                            size="small"
+                            variant="outlined"
+                            style={{
+                              backgroundColor: "lightblue",
+                              borderRadius: 6,
+                            }}
+                          >
+                            view
+                          </button>
+                        </div>
+                      </div>
+                    </StyledTableCell>
+                  </StyledTableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
         <div>
-          <FormControl sx={{ m: 1, minWidth: 120 }}>
-            <FormHelperText>Filter by category name</FormHelperText>
-            <Select
-              size="small"
-              value={category_id}
-              onChange={handleSelectCategory}
-              displayEmpty
-              inputProps={{ "aria-label": "Age" }}
-            >
-              <MenuItem value="">All categories</MenuItem>
-
-              {categories.map((category) => (
-                <MenuItem key={category.id} value={category.id}>
-                  {category.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          <Stack spacing={2}>
+            <Pagination
+              onChange={(e, p) => setPage(p)}
+              count={totalPages}
+              variant="outlined"
+              shape="rounded"
+            />
+          </Stack>
         </div>
-
-        <div style={{ marginTop: 29 }}>
-          <FormControl sx={{ minWidth: 150 }}>
-            <InputLabel size="small">Sort By</InputLabel>
-
-            <Select
-              size="small"
-              value={sort}
-              label="Sort By"
-              onChange={(e) => {
-                setSort(e.target.value);
-                setPage(1);
-              }}
-            >
-              <MenuItem value="id">ID</MenuItem>
-              <MenuItem value="title">Title</MenuItem>
-            </Select>
-          </FormControl>
-        </div>
-
-        <div style={{ marginTop: 29, marginLeft: 10 }}>
-          <FormControl sx={{ minWidth: 150 }}>
-            <InputLabel size="small">Order By</InputLabel>
-
-            <Select
-              size="small"
-              value={order}
-              label="Order By"
-              onChange={(e) => {
-                setOrder(e.target.value);
-                setPage(1);
-              }}
-            >
-              <MenuItem value="asc">ASC</MenuItem>
-              <MenuItem value="desc">DESC</MenuItem>
-            </Select>
-          </FormControl>
-        </div>
-      </div>
-      <Box
-        sx={{
-          flexGrow: 1,
-          maxWidth: 752,
-        }}
-      >
-        <TableContainer component={Paper}>
-          <Table sx={{ minWidth: 700 }} aria-label="customized table">
-            <TableHead>
-              <TableRow>
-                <StyledTableCell align="center">S/N</StyledTableCell>
-                <StyledTableCell align="center">Title</StyledTableCell>
-                <StyledTableCell align="center">Content</StyledTableCell>
-                <StyledTableCell align="center">Category</StyledTableCell>
-                <StyledTableCell align="center">Owner</StyledTableCell>
-                <StyledTableCell align="center">Actions</StyledTableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {notes.map((row, index) => (
-                <StyledTableRow key={row.id}>
-                  <StyledTableCell align="center">{index + 1}</StyledTableCell>
-                  <StyledTableCell align="center" component="th" scope="row">
-                    {row.title}
-                  </StyledTableCell>
-                  <StyledTableCell align="center">
-                    {row.content}
-                  </StyledTableCell>
-                  <StyledTableCell align="center">
-                    {row.category}
-                  </StyledTableCell>
-                  <StyledTableCell align="center">{row.owner}</StyledTableCell>
-
-                  <StyledTableCell align="center">
-                    <div style={{ display: "flex" }}>
-                      <div>
-                        <button
-                          onClick={() => handleEditNote(row.id)}
-                          size="small"
-                          variant="outlined"
-                          style={{
-                            backgroundColor: "lightpink",
-                            borderRadius: 6,
-                          }}
-                        >
-                          edit
-                        </button>
-                      </div>
-                      <div>
-                        <button
-                          onClick={() => handleClickOpen(row.id)}
-                          size="small"
-                          variant="outlined"
-                          style={{
-                            backgroundColor: "red",
-                            borderRadius: 6,
-                          }}
-                        >
-                          delete
-                        </button>
-                      </div>
-                      <div>
-                        <button
-                          onClick={() => handleViewNote(row.id)}
-                          size="small"
-                          variant="outlined"
-                          style={{
-                            backgroundColor: "lightblue",
-                            borderRadius: 6,
-                          }}
-                        >
-                          view
-                        </button>
-                      </div>
-                    </div>
-                  </StyledTableCell>
-                </StyledTableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Box>
-      <div>
-        <Stack spacing={2}>
-          <Pagination
-            onChange={(e, p) => setPage(p)}
-            count={totalPages}
-            variant="outlined"
-            shape="rounded"
-          />
-        </Stack>
       </div>
     </div>
   );

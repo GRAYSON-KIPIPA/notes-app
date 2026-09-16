@@ -8,6 +8,8 @@ import UpdateNote from "./components/UpdateNote";
 import NoteDetails from "./components/NoteDetails";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./context/AuthContext";
+import RoleProtectedRoute from "./components/RoleProtectRoute";
+import AdminPage from "./components/AdminPage";
 
 function App() {
   return (
@@ -22,8 +24,15 @@ function App() {
                   <Route path="/notes" element={<NotesPage />} />
                   <Route path="/profile" element={<ProfilePage />} />
                   <Route path="/add-note/" element={<AddNote />} />
-                  <Route path="/:id" element={<NoteDetails />} />
+
+                  <Route
+                    element={<RoleProtectedRoute allowedRoles={["admin"]} />}
+                  >
+                    {/* <Route element={<MainLayout />}> */}
+                    <Route path="/admin" element={<AdminPage />} />
+                  </Route>
                   <Route path="/update-note/:id" element={<UpdateNote />} />
+                  <Route path="/:id" element={<NoteDetails />} />
                 </Route>
               </Route>
             </Routes>

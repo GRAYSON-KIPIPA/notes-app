@@ -41,7 +41,6 @@ function ProfilePage() {
   useEffect(() => {
     handleGetProfile();
   }, []);
-  console.log("USER: ", user);
 
   if (loading) {
     return (

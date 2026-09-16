@@ -23,8 +23,6 @@ function NoteDetails() {
   const noteId = useParams();
   const id = Number(noteId.id);
 
-  console.log("NOTE: ", note);
-
   const handleGetNoteById = async () => {
     try {
       setLoading(true);

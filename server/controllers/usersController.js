@@ -152,7 +152,6 @@ const login = async (req, res, next) => {
 
 const deleteUsers = async (req, res) => {
   const id = req.user.id;
-  console.log("ID: ", id);
 
   try {
     const result = await pool.query(`DELETE FROM users WHERE id=$1`, [id]);
